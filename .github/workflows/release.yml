@@ -1,0 +1,65 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия релиза (без буквы "v", например: 0.1.0)'
+        required: true
+        default: '0.1.0'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    # 1. Получить код из репозитория
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # 2. Настроить Node.js с кешированием
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+        cache-dependency-path: './UI/package-lock.json'
+
+    # 3. Собрать UI в App/wwwroot 
+    - name: Install & Build UI
+      working-directory: ./UI
+      run: |
+        npm ci
+        npm run build
+
+    # 4. Настроить .NET 9 SDK с кэшированием
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+        cache: true
+        cache-dependency-path: 'App/*.csproj'
+
+    # 5. Опубликовать C# проект вместе с wwwroot во временную папку ./published-app
+    - name: Publish .NET App
+      run: |
+        dotnet publish App/GenshinOrchestra.Client.App.csproj -c Release -r win-x64 --self-contained true -o ./published-app
+
+    # 6. Скомилировать Inno Setup с версией
+    - name: Compile Inno Setup Script
+      uses: MinInnoSetup/action-inno-setup@v2
+      with:
+        path: installer.iss
+        options: /DAppVersion=${{ github.event.inputs.version }}
+
+    # 7. Создать релиз на GitHub и прикрепить скомпилированный инсталлятор
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: InstallerOutput/GenshinOrchestra_Setup_v${{ github.event.inputs.version }}.exe
+        name: Release v${{ github.event.inputs.version }}
+        tag_name: v${{ github.event.inputs.version }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

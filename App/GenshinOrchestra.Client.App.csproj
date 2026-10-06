@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+
+		<AssemblyName>Genshin Orchestra</AssemblyName>
+		<ApplicationIcon>icon.ico</ApplicationIcon>
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+
+		<!-- Вшить .NET Runtime -->
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<!-- Но вырезать ненужное -->
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Photino.NET" Version="4.0.16" />
+		<PackageReference Include="Velopack" Version="1.2.161" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="icon.ico">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

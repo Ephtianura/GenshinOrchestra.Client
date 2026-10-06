@@ -1,0 +1,52 @@
+END USER LICENSE AGREEMENT
+for "Genshin Orchestra Client" Software
+
+PLEASE READ THIS AGREEMENT CAREFULLY BEFORE INSTALLING OR USING THE SOFTWARE.
+
+1. GENERAL PROVISIONS AND INTELLECTUAL PROPERTY
+1.1. This End User License Agreement (hereinafter referred to as the "Agreement") is a legally binding contract entered into between the developer of Genshin Orchestra (hereinafter referred to as the "Rightsholder") and an individual or legal entity (hereinafter referred to as the "User") regarding the "Genshin Orchestra Client" software (hereinafter referred to as the "Software").
+1.2. PREVAILING AGREEMENT: Installing, copying, launching, or otherwise using the Software constitutes the User's full, unconditional, and absolute acceptance of all terms and conditions of this Agreement. This Agreement supersedes and replaces any prior oral or written agreements, correspondence, or understandings between the User and the Rightsholder regarding this Software. If the User does not agree to the terms of this Agreement, the User must immediately terminate the installation and delete all copies of the Software.
+1.3. THIRD-PARTY RIGHTS AND INTELLECTUAL PROPERTY:
+   a) Any trademarks, graphic images, fonts, interface elements, logos, audio materials, names, and other intellectual property objects of the Genshin Impact game used within the Software's interface or materials belong to their lawful rightsholders — COGNOSPHERE PTE. LTD. (Singapore), Shanghai MiHoYo Network Technology Co., Ltd. (China) and/or their affiliates (HoYoverse / miHoYo brand).
+   b) This Software is a non-commercial fan project. The provision of this Agreement does not transfer to the User any intellectual property rights of COGNOSPHERE PTE. LTD. or Shanghai MiHoYo Network Technology Co., Ltd.
+   c) All rights to the "Genshin Orchestra Client" Software not expressly granted to the User under this Agreement are reserved by the Rightsholder of the Software.
+
+2. RIGHTS AND RESTRICTIONS OF USE
+2.1. "Use" of the Software within the framework of this Agreement means downloading, installing, launching, executing Software binary files in the operating system, using its functionality for input emulation, as well as storing Software binary files on non-volatile or removable storage media of the User.
+2.2. The User is granted a personal, non-exclusive, royalty-free right to install and use the Software solely for the purpose of participating in musical performances within the Genshin Orchestra system.
+2.3. The User IS PROHIBITED FROM:
+   - Decompiling, disassembling, reverse engineering (decompiling source code), or modifying the binary files of the Software;
+   - Intercepting, analyzing, or modifying the network communication protocol between the Software and the management server;
+   - Using the Software for commercial purposes, extracting profit, reselling, leasing, or transferring access to the Software to third parties without the Rightsholder's permission.
+
+2.4. SANCTIONS FOR VIOLATION:
+In the event of a breach of clause 2.3 of this Agreement, the Rightsholder reserves the right, unilaterally and without prior notice, to:
+   - Indefinitely revoke the User's license to use the Software;
+   - Block access of the User's device and its identifiers to the Genshin Orchestra server infrastructure;
+   - Claim damages and lost profits from the Violator in accordance with applicable intellectual property protection laws.
+
+3. DISCLAIMER OF WARRANTIES AND LIMITATION OF LIABILITY
+3.1. The Software is provided on an "AS IS" basis. The Rightsholder does not warrant uninterrupted operation of the Software or its absolute compatibility with third-party software.
+3.2. The Software uses Win32 API input simulation system functions to interact with the Genshin Impact game client application.
+3.3. The Software performs keypress emulation exclusively at the Windows operating system level by sending standard system scan codes identical to physical keyboard input. The Software DOES NOT read or write system or persistent memory of the game, DOES NOT perform code injection (DLL Injection), DOES NOT intercept the graphic or system pipeline (DirectX/API Hooks), and DOES NOT modify any original files, code, or assets of the Genshin Impact game.
+
+3.4. LIMITATION OF LIABILITY AND RELEASE:
+   a) The User acknowledges, agrees, and assumes ALL possible risks associated with the use of third-party software in conjunction with software products and game accounts belonging to COGNOSPHERE PTE. LTD. (Singapore), Shanghai MiHoYo Network Technology Co., Ltd. (China), or their affiliates (HoYoverse / miHoYo brand).
+   b) The Rightsholder of the Software is not a partner, affiliate, or representative of the above-mentioned rightsholders of the Genshin Impact game.
+   c) The Rightsholder of the Software BEARS NO LIABILITY WHATSOEVER for any direct or indirect losses incurred by the User, including but not limited to: forced account suspension (ban), game access restrictions, temporary or permanent account feature limitations, game progress resets, or device blocks by third-party protection systems (anti-cheat).
+   d) The User waives any claims, lawsuits, or financial demands against the Rightsholder of the Software related to potential sanctions by the rightsholders of the Genshin Impact game.
+   e) CAP OF LIABILITY: To the maximum extent permitted by applicable law, the total aggregate liability of the Rightsholder to the User for any claims or lawsuits arising out of or related to the use or inability to use the Software is limited to the amount actually paid by the User for the right to use the Software (equals $0 USD / 0 US Dollars).
+
+4. AUTOMATIC UPDATES
+4.1. The Software may automatically download and install updates necessary for proper timing synchronization and network protocol operation.
+
+5. PRIVACY AND DATA PROTECTION
+5.1. The Rightsholder respects the User's right to privacy and guarantees a high level of data protection.
+5.2. DATA COLLECTION: The Software does not collect, store, or transmit the User's personal data, UID, passwords, game files, or any other confidential information from the User's device.
+5.3. The in-game identifier (UID) and network parameters used solely for technical synchronization within the orchestra system are strictly confidential.
+5.4. The Rightsholder agrees NOT TO TRANSFER, sell, or disclose any User data (including UID) or other system identifiers to any third parties, organizations, or public services.
+5.5. All data transmitted between the Software and the server is encrypted and used exclusively to ensure synchronized operation of the program.
+
+6. FINAL PROVISIONS
+6.1. This Agreement enters into force upon commencement of the Software installation and remains valid throughout the entire period of Software usage by the User.
+6.2. If any provision of this Agreement is held to be invalid or unenforceable, it shall not affect the validity or enforceability of the remaining provisions of this Agreement.
