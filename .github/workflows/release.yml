@@ -47,7 +47,7 @@ jobs:
 
     # 6. Скомилировать Inno Setup с версией
     - name: Compile Inno Setup Script
-      uses: MinInnoSetup/action-inno-setup@v2
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
       with:
         path: installer.iss
         options: /DAppVersion=${{ github.event.inputs.version }}

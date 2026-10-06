@@ -33,4 +33,26 @@
 		</None>
 	</ItemGroup>
 
+	<!-- Взять билд UI в релиз -->
+	<!-- build -->
+	<Target Name="CopyUIAssetsOnBuild" BeforeTargets="Build">
+		<ItemGroup>
+			<_UIAssetsBuild Include="..\UI\dist\**\*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(_UIAssetsBuild)"
+			  DestinationFiles="@(_UIAssetsBuild->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
+			  SkipUnchangedFiles="true" />
+	</Target>
+
+	<!-- publish -->
+	<Target Name="IncludeUIAssetsInPublish" BeforeTargets="ComputeFilesToPublish">
+		<ItemGroup>
+			<_UIAssetsPublish Include="..\UI\dist\**\*.*" />
+			<ResolvedFileToPublish Include="@(_UIAssetsPublish)">
+				<RelativePath>wwwroot\%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			</ResolvedFileToPublish>
+		</ItemGroup>
+	</Target>
+
 </Project>
