@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "1.1.0"
 #endif
 
 [Setup]
@@ -12,7 +12,10 @@ DefaultGroupName=Genshin Orchestra
 OutputDir=.\InstallerOutput
 OutputBaseFilename=GenshinOrchestra_Setup_v{#AppVersion}
 
+UsePreviousAppDir=yes
+
 PrivilegesRequired=admin
+PrivilegesRequiredOverridesAllowed=commandline
 
 Compression=lzma2
 SolidCompression=yes
@@ -54,5 +57,30 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "{autoprograms}\Genshin Orchestra"; Filename: "{app}\Genshin Orchestra.exe"
 Name: "{autodesktop}\Genshin Orchestra"; Filename: "{app}\Genshin Orchestra.exe"; Tasks: desktopicon
 
+[InstallDelete]
+Type: files; Name: "{app}\*.dll"
+Type: files; Name: "{app}\*.exe"
+Type: filesandordirs; Name: "{app}\wwwroot\*"
+
 [Run]
-Filename: "{app}\Genshin Orchestra.exe"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Genshin Orchestra.exe"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent runascurrentuser; Check: not WizardSilent
+Filename: "{app}\Genshin Orchestra.exe"; Flags: nowait runascurrentuser; Check: IsSilentAndRunRequested
+
+[Code]
+function IsSilentAndRunRequested(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if WizardIsTaskSelected('silent') or WizardSilent() then
+  begin
+    for I := 1 to ParamCount do
+    begin
+      if CompareText(ParamStr(I), '/RUN') = 0 then
+      begin
+        Result := True;
+        Break;
+      end;
+    end;
+  end;
+end;

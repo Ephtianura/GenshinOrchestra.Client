@@ -1,6 +1,8 @@
-﻿using GenshinOrchestra.Client.App.Models;
+﻿using GenshinOrchestra.Client.App.Extensions;
+using GenshinOrchestra.Client.App.Models;
+using GenshinOrchestra.Client.App.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Photino.NET;
-using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace GenshinOrchestra.Client.App
@@ -8,6 +10,7 @@ namespace GenshinOrchestra.Client.App
     class Program
     {
         private static PhotinoWindow _window;
+        private readonly static string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
 
         #region Win32 API для включения кнопки сворачивания
         [DllImport("user32.dll", SetLastError = true)]
@@ -23,7 +26,11 @@ namespace GenshinOrchestra.Client.App
         [STAThread]
         static void Main(string[] args)
         {
-            string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+            var services = Configure.Services();
+            var dispatcher = services.GetRequiredService<PhotinoReflectionDispatcher>();
+
+            if (services.GetRequiredService<UpdateService>().RunUpdateUIIfAvailableAsync(dispatcher, iconPath).GetAwaiter().GetResult()) return;
+
 
             _window = new PhotinoWindow()
                 .SetTitle("Genshin Orchestra Client")
@@ -31,18 +38,17 @@ namespace GenshinOrchestra.Client.App
                 .SetUseOsDefaultSize(false)
                 .SetUseOsDefaultLocation(false)
                 .SetSize(1280, 720)
-                .SetLocation(new Point(0, 0))
                 .Center()
                 .SetChromeless(false)
                 .SetResizable(false)
-                .SetDevToolsEnabled(false)
                 .RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
-                .RegisterWebMessageReceivedHandler(OnMessageFromUI);
+                //.RegisterWebMessageReceivedHandler(OnMessageFromUI)
+                .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage);
 
 #if DEBUG
             _window.Load("http://localhost:5173");
 #else
-            _window.Load("wwwroot/index.html");
+            _window.SetDevToolsEnabled(false).Load("wwwroot/index.html");
 #endif
             _window.WaitForClose();
         }
@@ -70,7 +76,7 @@ namespace GenshinOrchestra.Client.App
                 await engine.PlayAsync(track, serverDeltaMs: 0);
 
                 Console.WriteLine("\nТест успешно завершен.");
-                
+
             }
         }
 
@@ -81,26 +87,3 @@ namespace GenshinOrchestra.Client.App
         }
     }
 }
-
-
-
-//if (message == "TEST_INPUT")
-//{
-//    _window.SendWebMessage(JsonSerializer.Serialize(new
-//    {
-//        type = "TEST_START",
-//        message = "Быстро кликните в Блокнот / Genshin! Печать через 3 секунды..."
-//    }));
-//    await Task.Delay(1000);
-//    char[] keysToPress = { 'Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F' };
-//    foreach (var key in keysToPress)
-//    {
-//        InputSimulator.PressKey(key, holdDurationMs: 60);
-//        await Task.Delay(150);
-//    }
-//    _window.SendWebMessage(JsonSerializer.Serialize(new
-//    {
-//        type = "TEST_COMPLETE",
-//        status = "Успешно напечатано: QWERASDF!"
-//    }));
-//}

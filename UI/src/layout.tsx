@@ -1,17 +1,18 @@
-import { useState } from 'react';
-import { useDesktopGuards } from './hooks/useKeysBlock';
+import { useEffect, useState } from 'react';
+import { useDesktopGuards } from './functions/useKeysBlock';
 // import Titlebar from './components/Titlebar';
 import { PingIndicator } from './components/PingIndicator';
+import { send } from './bridge/send';
 
 export default function Layout() {
   useDesktopGuards();
   const [isReady, setIsReady] = useState(false);
 
- const handleToggleReady = () => {
+  const handleToggleReady = () => {
     const nextState = !isReady;
     setIsReady(nextState);
 
-     const external = (window as Window & {
+    const external = (window as Window & {
       external?: {
         sendMessage?: (message: string) => void;
       };
@@ -22,9 +23,21 @@ export default function Layout() {
     }
   };
 
+  const [result, setResult] = useState<string | null>(null)
+
+  useEffect(() => {
+    send.invoke<string>('GetUser', {
+      id: 42,
+      includeDetails: 'Admin'
+    })
+      .then(setResult)
+      .catch(console.error)
+  }, [])
+
+  console.log(result)
+
   return (
     <div className="min-h-screen bg-[#0e131d] text-[#ece5d8] flex flex-col select-none relative overflow-hidden">
-
       {/* <Titlebar /> */}
       {/* Фоновое свечение*/}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -33,6 +46,7 @@ export default function Layout() {
       <div className="flex gap-6 p-4 relative h-screen  w-full ">
         <div className="absolute right-3 top-3 z-10">
           <PingIndicator />
+          {/* <p>{result}</p> */}
         </div>
 
         <div className='flex gap-4 w-full relative'>
@@ -87,14 +101,14 @@ export default function Layout() {
                   Ваш инструмент
                 </span>
 
-                {/* Фоновая плашка предмета под 5★ (Золотая) */}
+                {/* Фоновая плашка предмета под 5★*/}
                 <div className="relative flex items-center justify-center max-w-52 max-h-52 rounded-2xl border border-[#e0b974]/40 bg-gradient-to-b from-[#a16828] via-[#523a1c] to-[#241a10] shadow-[0_0_30px_rgba(224,185,116,0.15)] group transition-transform duration-300 hover:scale-105">
 
                   {/* Сияние за инструментом */}
                   <div className="absolute inset-0 bg-amber-400/10 rounded-2xl blur-md group-hover:bg-amber-400/20 transition-all" />
 
                   <img
-                    src="Item_Lingering_Euphonia.webp"
+                    src="media/Item_Lingering_Euphonia.webp"
                     alt="Инструмент"
                     className="max-w-36 drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] z-10"
                   />
@@ -114,13 +128,13 @@ export default function Layout() {
                   /* ПОСЛЕ */
                   <p className=" text-[#e0b974] leading-relaxed animate-fade-in bg-[#121925]/60 
                  backdrop-blur-sm">
-                    <span className="font-medium text-[#fff2d6]">Партия может начаться в любой момент. </span> 
+                    <span className="font-medium text-[#fff2d6]">Партия может начаться в любой момент. </span>
                     Будут автоматически нажиматься клавиши клавиатуры – следите за указаниями организатора.
                   </p>
                 ) : (
                   /* ДО */
                   <p className=" text-[#a4b3c6]/80 leading-relaxed">
-                    <span>Нажимая </span>                    
+                    <span>Нажимая </span>
                     <span className="text-[#d3bc8e] font-medium">«Готово»</span>
                     <span>, вы подтверждаете согласие на эмуляцию нажатий клавиш </span>
                     <code className="code-letter">Q-U</code>, <code className="code-letter">A-J</code>, <code className="code-letter">Z-M</code> в ходе исполнения партии.

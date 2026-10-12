@@ -1,7 +1,7 @@
 ﻿using GenshinOrchestra.Client.App.Models;
 using System.Diagnostics;
 
-namespace GenshinOrchestra.Client.App
+namespace GenshinOrchestra.Client.App.Services
 {
 
     public class PrecisionPlaybackEngine

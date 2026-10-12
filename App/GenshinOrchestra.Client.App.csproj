@@ -13,6 +13,8 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
+		<Version>0.1.0</Version>
+		
 		<!-- Вшить .NET Runtime -->
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -20,11 +22,16 @@
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 
+		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
+		<PackageReference Include="NetSparkleUpdater.SparkleUpdater" Version="3.1.0" />
 		<PackageReference Include="Photino.NET" Version="4.0.16" />
-		<PackageReference Include="Velopack" Version="1.2.161" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -39,9 +46,7 @@
 		<ItemGroup>
 			<_UIAssetsBuild Include="..\UI\dist\**\*.*" />
 		</ItemGroup>
-		<Copy SourceFiles="@(_UIAssetsBuild)"
-			  DestinationFiles="@(_UIAssetsBuild->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
-			  SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(_UIAssetsBuild)" DestinationFiles="@(_UIAssetsBuild->'$(OutDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 	</Target>
 
 	<!-- publish -->

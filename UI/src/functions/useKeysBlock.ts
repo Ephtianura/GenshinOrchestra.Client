@@ -15,10 +15,10 @@ export function useDesktopGuards() {
       }
 
       // Блок F1 - F12
-      if (/^F(1[0-2]|[1-9])$/.test(e.key)) {
-        e.preventDefault();
-        return;
-      }
+      // if (/^F(1[0-2]|[1-9])$/.test(e.key)) {
+      //   e.preventDefault();
+      //   return;
+      // }
 
       // Блок Ctrl / Cmd
       if (e.ctrlKey || e.metaKey) {
