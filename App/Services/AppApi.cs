@@ -1,15 +1,47 @@
-﻿namespace GenshinOrchestra.Client.App.Services
-{
-    public class AppApi
-    {
-        public string GetUser(int id)
-        {
-            var a = "aaaa";
-            return a; 
-        }
+﻿using GenshinOrchestra.Client.App.Models;
 
-        public void SaveSettings(string theme, bool notifications)
+namespace GenshinOrchestra.Client.App.Services
+{
+    public class AppApi()
+    {
+        private CancellationTokenSource? _cts;
+
+        public Task Ping() => Task.CompletedTask;
+
+
+        // Для тестирования
+        public string GetTest(int id) => "aaaa";
+        public bool TestBool() => true;
+
+        public async Task<string> GetHwid()
         {
+            return "";
+        }
+        public async Task Stop()
+        {
+
+        }
+      
+        public async Task Start(CancellationToken ct = default)
+        {
+            for (int i = 1; i > 0; i--)
+            {
+                Console.WriteLine($"Старт через {i} сек...");
+                await Task.Delay(1000);
+            }
+
+            // Эмуляция: старт трека планируется через 500 мс от текущего момента
+            long nowUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            long scheduledStartTime = nowUtc + 500;
+
+            // Загружаем тестовый JSON-объект
+            TrackData track = TrackData.GetMockTrack(scheduledStartTime);
+
+            // Запуск движка
+            var engine = new PrecisionPlaybackEngine();
+            await engine.PlayAsync(track, serverDeltaMs: 0);
+
+            Console.WriteLine("\nТест успешно завершен.");
         }
     }
 }

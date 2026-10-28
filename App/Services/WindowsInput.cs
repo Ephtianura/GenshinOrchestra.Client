@@ -24,7 +24,6 @@ namespace GenshinOrchestra.Client.App
             public uint dwFlags;
             public uint time;
             public nint dwExtraInfo;
-            // Паддинг для выравнивания под размер 64-битного INPUT UNION (40 байт)
             public uint padding1;
             public uint padding2;
         }

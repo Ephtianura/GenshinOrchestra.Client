@@ -12,23 +12,14 @@ export default function Layout() {
     const nextState = !isReady;
     setIsReady(nextState);
 
-    const external = (window as Window & {
-      external?: {
-        sendMessage?: (message: string) => void;
-      };
-    }).external;
-
-    if (external?.sendMessage) {
-      external.sendMessage(nextState ? 'START' : 'STOP');
-    }
+    send.invoke(nextState ? 'Start' : 'Stop').catch(console.error)
   };
 
   const [result, setResult] = useState<string | null>(null)
 
   useEffect(() => {
-    send.invoke<string>('GetUser', {
+    send.invoke<string>('GetTest', {
       id: 42,
-      includeDetails: 'Admin'
     })
       .then(setResult)
       .catch(console.error)
@@ -46,7 +37,7 @@ export default function Layout() {
       <div className="flex gap-6 p-4 relative h-screen  w-full ">
         <div className="absolute right-3 top-3 z-10">
           <PingIndicator />
-          {/* <p>{result}</p> */}
+          <p>{result}</p>
         </div>
 
         <div className='flex gap-4 w-full relative'>

@@ -1,4 +1,5 @@
-﻿using GenshinOrchestra.Client.App.Dto;
+﻿using GenshinOrchestra.Client.App.Contracts;
+using GenshinOrchestra.Client.App.Dto;
 using GenshinOrchestra.Client.App.Extensions;
 using GenshinOrchestra.Client.App.Models;
 using Photino.NET;
@@ -11,7 +12,7 @@ namespace GenshinOrchestra.Client.App.Services
     {
         private readonly IMainApi _mainApi = mainApi;
         private readonly HttpClient _httpClient = httpClient;
-
+        private const string iconTitle = "Genshin Orchestra – Обновление...";
         public Version CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(9, 9, 9);
 
         /// <summary>
@@ -19,14 +20,13 @@ namespace GenshinOrchestra.Client.App.Services
         /// окно Photino с прогресс-баром и выполняет установку.
         /// </summary>
         /// <returns>True - если обновление найдено и окно было запущено. False - если обновлений нет.</returns>
-        /// - – —
-        public async Task<bool> RunUpdateUIIfAvailableAsync(PhotinoReflectionDispatcher dispatcher, string iconPath)
+        public async Task<bool> RunUpdateUIIfAvailableAsync(PhotinoReflectionDispatcher dispatcher, string iconPath, string address)
         {
             var updateInfo = await CheckForUpdatesAsync();
             if (updateInfo == null) return false;
 
             var window = new PhotinoWindow()
-                .SetTitle("Genshin Orchestra – Обновление...")
+                .SetTitle(iconTitle)
                 .SetIconFile(iconPath)
                 .SetUseOsDefaultSize(false)
                 .SetUseOsDefaultLocation(false)
@@ -38,7 +38,7 @@ namespace GenshinOrchestra.Client.App.Services
 #if DEBUG
             window.Load("http://localhost:5173/updating.html");
 #else
-            window.SetDevToolsEnabled(false).Load("wwwroot/updating.html");
+            window.SetDevToolsEnabled(false).Load($"{address}/updating.html");
 #endif
 
             if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
@@ -46,8 +46,9 @@ namespace GenshinOrchestra.Client.App.Services
 
             _ = Task.Run(async () =>
             {
+#if DEBUG
                 await Task.Delay(500);
-
+#endif
                 try
                 {
                     window.SendToReact("UpdateProgress", new ProgressPayload(0, "Подготовка к загрузке..."));
@@ -135,7 +136,7 @@ namespace GenshinOrchestra.Client.App.Services
 
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                     {
-                        //await Task.Delay(5);
+                        await Task.Delay(5);
                         await fileStream.WriteAsync(buffer, 0, bytesRead, ct);
                         totalRead += bytesRead;
 
@@ -233,6 +234,5 @@ namespace GenshinOrchestra.Client.App.Services
             }
         }
     }
-
 }
 

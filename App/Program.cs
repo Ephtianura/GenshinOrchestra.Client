@@ -1,89 +1,62 @@
 ﻿using GenshinOrchestra.Client.App.Extensions;
-using GenshinOrchestra.Client.App.Models;
-using GenshinOrchestra.Client.App.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Photino.NET;
-using System.Runtime.InteropServices;
 
 namespace GenshinOrchestra.Client.App
 {
-    class Program
+    internal static partial class Program
     {
         private static PhotinoWindow _window;
-        private readonly static string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
-
-        #region Win32 API для включения кнопки сворачивания
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
-
-        [DllImport("user32.dll")]
-        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
-
-        private const int GWL_STYLE = -16;
-        private const int WS_MINIMIZEBOX = 0x00020000;
-        #endregion
+        private readonly static string iconPath = Path.Combine("icon.ico");
+        private const string windlowTitle = "Genshin Orchestra Client "; // Пробел важен для иконки.
 
         [STAThread]
-        static void Main(string[] args)
+        static void Main()
         {
-            var services = Configure.Services();
-            var dispatcher = services.GetRequiredService<PhotinoReflectionDispatcher>();
+            var (app, address) = StartWebServer();
 
-            if (services.GetRequiredService<UpdateService>().RunUpdateUIIfAvailableAsync(dispatcher, iconPath).GetAwaiter().GetResult()) return;
-
-
-            _window = new PhotinoWindow()
-                .SetTitle("Genshin Orchestra Client")
-                .SetIconFile(iconPath)
-                .SetUseOsDefaultSize(false)
-                .SetUseOsDefaultLocation(false)
-                .SetSize(1280, 720)
-                .Center()
-                .SetChromeless(false)
-                .SetResizable(false)
-                .RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
-                //.RegisterWebMessageReceivedHandler(OnMessageFromUI)
-                .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage);
+            try
+            {
+                var services = Configure.Services();
+                var dispatcher = services.GetRequiredService<PhotinoReflectionDispatcher>();
 
 #if DEBUG
-            _window.Load("http://localhost:5173");
+                CheckUpdates(services, dispatcher, address);
 #else
-            _window.SetDevToolsEnabled(false).Load("wwwroot/index.html");
+                CheckUpdates(services, dispatcher, address);
 #endif
-            _window.WaitForClose();
-        }
 
-        private static async void OnMessageFromUI(object? sender, string message)
-        {
-
-            if (message == "START")
-            {
-                for (int i = 1; i > 0; i--)
+                if (!SingleInstance.IsFirstInstance)
                 {
-                    Console.WriteLine($"Старт через {i} сек...");
-                    await Task.Delay(1000);
+                    SingleInstance.ActivateExisting();
+                    return;
                 }
 
-                // Эмуляция: старт трека планируется через 500 мс от текущего момента
-                long nowUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-                long scheduledStartTime = nowUtc + 500;
+                _window = new PhotinoWindow()
+                    .SetTitle(windlowTitle)
+                    .SetIconFile(iconPath)
+                    .SetUseOsDefaultSize(false)
+                    .SetUseOsDefaultLocation(false)
+                    .SetSize(1280, 720)
+                    .Center()
+                    .SetChromeless(false)
+                    .SetResizable(false)
+                    .RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
+                    .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage);
 
-                // Загружаем тестовый JSON-объект
-                TrackData track = TrackData.GetMockTrack(scheduledStartTime);
-
-                // Запуск движка
-                var engine = new PrecisionPlaybackEngine();
-                await engine.PlayAsync(track, serverDeltaMs: 0);
-
-                Console.WriteLine("\nТест успешно завершен.");
-
+#if DEBUG
+                _window.Load("http://localhost:5173");
+#else
+                _window.SetDevToolsEnabled(true).Load(address);
+#endif
+                _window.WaitForClose();
+            }
+            finally
+            {
+                app.StopAsync().GetAwaiter().GetResult();
+                app.DisposeAsync().AsTask().GetAwaiter().GetResult();
             }
         }
 
-        private static void EnableMinimizeButton(IntPtr hWnd)
-        {
-            int currentStyle = GetWindowLong(hWnd, GWL_STYLE);
-            SetWindowLong(hWnd, GWL_STYLE, currentStyle | WS_MINIMIZEBOX);
-        }
     }
 }

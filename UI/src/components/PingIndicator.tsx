@@ -1,24 +1,29 @@
-import { HiChartBar } from 'react-icons/hi'
+import { HiChartBar } from 'react-icons/hi';
+import { usePing } from '../functions/usePing';
+import { useSignalRState } from '../functions/useSignalRState';
+import { CircleSpinner } from './CircleSpinner';
 
 export function PingIndicator() {
-    const ping = 34
-    const displayPing = Math.min(ping, 999)
+    const displayPing = usePing();
+    const { isConnectionLost } = useSignalRState();
 
     const pingColor =
-        ping <= 100
+        displayPing <= 100
             ? 'var(--good-ping)'
-            : ping <= 200
+            : displayPing <= 200
                 ? 'var(--medium-ping)'
                 : 'var(--bad-ping)'
 
     return (
-        <div
-            className="flex gap-2 items-center py-0.5 px-2 bg-[#ffffff0c]
-        ring-2 ring-[#ffffff2e] rounded-full text-xs"
+        <div className="grid grid-cols-[auto_1fr] items-center w-22 gap-1 py-0.5 px-2 bg-[#55555510] ring-2 ring-[#f0f0f029] rounded-full text-xs"
             style={{ color: pingColor }}
         >
-            <HiChartBar />
-            <span>{displayPing} мс.</span>
+            {isConnectionLost ? (
+                <CircleSpinner size={18} strokeWidth={5} color={pingColor} speed='2s' />
+            ) : (
+                <HiChartBar className="justify-self-start h-4 w-4" />
+            )}
+            <p className="text-center mt-px">{displayPing} мс.</p>
         </div>
     )
 }
