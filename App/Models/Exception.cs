@@ -1,17 +1,17 @@
-﻿namespace GenshinOrchestra.Client.App.Exceptions
+﻿namespace GenshinOrchestra.Client.App.Models
 {
-    /// <summary> Помилка при зверенні до сторонніх API </summary>
+    /// <summary> Ошибка при обращении к API </summary>
     public class MainApiException(string message, Exception? inner = null) : Exception(message, inner) { }
 
-    /// <summary> Помилка на стороні API </summary>
+    /// <summary> Ошибка на стороне API </summary>
     public class MainApiHttpException(string message, Exception? inner = null) : MainApiException(message, inner);
 
-    /// <summary> Таймаут. API Довго не відповідає </summary>
+    /// <summary> Таймаут. API Долго не отвечает </summary>
     public class MainApiTimeoutException(string message, Exception? inner = null) : MainApiException(message, inner);
 
-    /// <summary> Некоректний або неочікуваний формат відповіді API </summary>
+    /// <summary> Некорректный или неожиданный формат ответа API </summary>
     public class MainApiInvalidResponseException(string message, Exception? inner = null) : MainApiException(message, inner);
 
-    /// <summary> Пуста відповідь </summary>
+    /// <summary> Пустой запрос </summary>
     public class MainApiEmptyResponseException(string message, Exception? inner = null) : MainApiException(message, inner);
 }

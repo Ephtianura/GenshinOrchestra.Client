@@ -1,4 +1,4 @@
-﻿using GenshinOrchestra.Client.App.ForDelete;
+﻿using GenshinOrchestra.Client.App.ToDelete;
 using System.Text.Json.Serialization;
 
 namespace GenshinOrchestra.Client.App.Models

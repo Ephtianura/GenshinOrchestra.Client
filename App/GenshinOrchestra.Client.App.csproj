@@ -28,13 +28,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="Photino.NET" Version="4.0.16" />
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
 		<PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.11.0" />
 		<PackageReference Include="System.Management" Version="10.0.14" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>

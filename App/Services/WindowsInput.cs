@@ -5,10 +5,13 @@ namespace GenshinOrchestra.Client.App
 {
     public static partial class WindowsInput
     {
+        #region consts
         private const uint INPUT_KEYBOARD = 1;
         private const uint KEYEVENTF_KEYUP = 0x0002;
         private const uint KEYEVENTF_SCANCODE = 0x0008;
+        #endregion
 
+        #region structs
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
         {
@@ -27,19 +30,22 @@ namespace GenshinOrchestra.Client.App
             public uint padding1;
             public uint padding2;
         }
+        #endregion
 
+        #region dll_import
         [LibraryImport("user32.dll", SetLastError = true)]
         private static partial uint SendInput(uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
         [LibraryImport("user32.dll", SetLastError = true)]
         private static partial uint MapVirtualKeyW(uint uCode, uint uMapType);
+        #endregion
 
         /// <summary>
         /// Отправляет событие нажатия или отпускания физической клавиши по Hardware Scan Code
         /// </summary>
         public static void SendKey(char key, KeyAction action)
         {
-            ushort vk = (ushort)char.ToUpper(key);
+            ushort vk = char.ToUpper(key);
             ushort scanCode = (ushort)MapVirtualKeyW(vk, 0); // MAPVK_VK_TO_VSC = 0
 
             if (scanCode == 0) return;

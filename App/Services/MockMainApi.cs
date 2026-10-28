@@ -5,11 +5,6 @@ namespace GenshinOrchestra.Client.App.Services
 {
     public class MockMainApi(HttpClient httpClient) : IMainApi
     {
-        public Task<List<RoomResponse>> GetAllRooms(CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<UpdateInfoResponse?> GetLatestVerAsync(CancellationToken ct = default)
         {
             var mockData = new UpdateInfoResponse
@@ -21,16 +16,6 @@ namespace GenshinOrchestra.Client.App.Services
             };
 
             return Task.FromResult<UpdateInfoResponse?>(mockData);
-        }
-
-        public Task<List<RoomMemberResponse>> GetRoomParticipants(Guid roomId, CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string?> Register(RegisterRequest request, CancellationToken ct = default)
-        {
-            throw new NotImplementedException();
         }
     }
 }

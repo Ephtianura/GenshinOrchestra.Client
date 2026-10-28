@@ -16,7 +16,7 @@ namespace GenshinOrchestra.Client.App.Services
         public Version CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(9, 9, 9);
 
         /// <summary>
-        /// Проверяет наличие обновления и, если оно есть, автоматически показывает 
+        /// Проверяет наличие обновления и, если оно есть, автоматически показывает
         /// окно Photino с прогресс-баром и выполняет установку.
         /// </summary>
         /// <returns>True - если обновление найдено и окно было запущено. False - если обновлений нет.</returns>

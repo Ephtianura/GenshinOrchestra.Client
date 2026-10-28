@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GenshinOrchestra.Client.App.ForDelete
+namespace GenshinOrchestra.Client.App.ToDelete
 {
     public class TrackData1
     {

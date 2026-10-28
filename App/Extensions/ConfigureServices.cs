@@ -1,5 +1,4 @@
 ﻿using GenshinOrchestra.Client.App.Contracts;
-using GenshinOrchestra.Client.App.Models;
 using GenshinOrchestra.Client.App.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,10 +13,6 @@ namespace GenshinOrchestra.Client.App.Extensions
             var services = new ServiceCollection();
             services.AddSingleton<IConfiguration>(configuration);
 
-            //services.AddSingleton<TokenStorage>();
-            //services.AddTransient<AuthorizationHandler>();
-            //services.AddTransient<AuthService>();
-
             // MainApi
             services.AddHttpClient<IMainApi,
 #if DEBUG
@@ -30,8 +25,7 @@ namespace GenshinOrchestra.Client.App.Extensions
                 client.BaseAddress = new Uri(configuration["MainServer:ApiUrl"]
                     ?? throw new InvalidOperationException("Куда-то пропала ссылка на сервер..."));
                 client.Timeout = TimeSpan.FromSeconds(10);
-                client.DefaultRequestHeaders
-                .Add("User-Agent", "GenshinOrchestra-Client");
+                client.DefaultRequestHeaders.Add("User-Agent", "GenshinOrchestra-Client");
             });
 
             // UpdateService
@@ -50,13 +44,7 @@ namespace GenshinOrchestra.Client.App.Extensions
                 return dispatcher;
             });
 
-            var provider = services.BuildServiceProvider();
-
-            //var tokenStorage = provider.GetRequiredService<TokenStorage>();
-            //var authService = provider.GetRequiredService<AuthService>();
-            //tokenStorage.AccessToken = AuthService.ReadTokenFromWindows();
-
-            return provider;
+            return services.BuildServiceProvider();
         }
     }
 }
