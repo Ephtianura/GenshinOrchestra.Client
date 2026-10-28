@@ -25,12 +25,7 @@ namespace GenshinOrchestra.Client.App
 #else
                 CheckUpdates(services, dispatcher, address);
 #endif
-
-                if (!SingleInstance.IsFirstInstance)
-                {
-                    SingleInstance.ActivateExisting();
-                    return;
-                }
+                CheckFirstInstance();
 
                 _window = new PhotinoWindow()
                     .SetTitle(windlowTitle)
@@ -43,13 +38,16 @@ namespace GenshinOrchestra.Client.App
                     .SetResizable(false)
                     .RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
                     .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage);
-
 #if DEBUG
                 _window.Load("http://localhost:5173");
 #else
-                _window.SetDevToolsEnabled(true).Load(address);
+                _window.SetDevToolsEnabled(false).Load(address);
 #endif
                 _window.WaitForClose();
+            }
+            catch (Exception ex)
+            {
+                LogAndShowException(ex);
             }
             finally
             {

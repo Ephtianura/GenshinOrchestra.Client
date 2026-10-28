@@ -6,23 +6,21 @@ namespace GenshinOrchestra.Client.App.Services
     {
         private CancellationTokenSource? _cts;
 
-        public Task Ping() => Task.CompletedTask;
+        public static Task Ping() => Task.CompletedTask;
 
 
         // Для тестирования
-        public string GetTest(int id) => "aaaa";
-        public bool TestBool() => true;
+        public static string GetTest(int id) => $"aaaa+ {id}";
+        public static bool TestBool() => true;
 
-        public async Task<string> GetHwid()
-        {
-            return "";
-        }
+        public static string GetHwid() => AuthService.GenerateHwid();
+
         public async Task Stop()
         {
 
         }
       
-        public async Task Start(CancellationToken ct = default)
+        public static async Task Start(CancellationToken ct = default)
         {
             for (int i = 1; i > 0; i--)
             {

@@ -64,6 +64,7 @@ namespace GenshinOrchestra.Client.App.Extensions
                 }
                 catch (Exception ex)
                 {
+                    AppLogger.Log(ex);
                     SendError(window, requestId, ex.InnerException?.Message ?? ex.Message);
                 }
             });
