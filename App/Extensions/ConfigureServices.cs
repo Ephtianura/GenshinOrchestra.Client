@@ -14,6 +14,10 @@ namespace GenshinOrchestra.Client.App.Extensions
             var services = new ServiceCollection();
             services.AddSingleton<IConfiguration>(configuration);
 
+            //services.AddSingleton<TokenStorage>();
+            //services.AddTransient<AuthorizationHandler>();
+            //services.AddTransient<AuthService>();
+
             // MainApi
             services.AddHttpClient<IMainApi,
 #if DEBUG
@@ -46,7 +50,13 @@ namespace GenshinOrchestra.Client.App.Extensions
                 return dispatcher;
             });
 
-            return services.BuildServiceProvider();
+            var provider = services.BuildServiceProvider();
+
+            //var tokenStorage = provider.GetRequiredService<TokenStorage>();
+            //var authService = provider.GetRequiredService<AuthService>();
+            //tokenStorage.AccessToken = AuthService.ReadTokenFromWindows();
+
+            return provider;
         }
     }
 }
