@@ -13,11 +13,9 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
 
-  --good-ping: #9AE569;
+  --good-ping: #9ae569;
   --medium-ping: #e5d969;
   --bad-ping: #e56969; /*#FA8282*/
 
@@ -30,23 +28,31 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
 }
 
 @theme {
-    --color-primary: #646cff;
-    --color-danger: #ef4444;
+  --color-primary: #646cff;
+  --color-danger: #ef4444;
 }
 
 @font-face {
-  font-family: 'GenshinFont';
-  src: url('/fonts/genshin_font.ttf') format('truetype');
+  font-family: "GenshinFont";
+  src: url("/fonts/genshin_font.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
+html{
+  background-color: #08060d;
+}
 body {
-  font-family: 'GenshinFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    "GenshinFont",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }
 .titlebar {
   -webkit-app-region: drag;
@@ -58,12 +64,57 @@ body {
 }
 
 img {
-    user-select: none;
-    -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
+/* Noise Gradient – paste into your project */
+.noise-gradient {
+  background: radial-gradient(circle at center, #fd9a00 -2000%, #0e131d 100%);
+}
+* {
+  scrollbar-color: #202a3c transparent;
+  scrollbar-width: thin;
+}
+.transparent-scroll {
+  scrollbar-color: #9457ff transparent;
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+}
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer components {
   .code-letter {
     @apply text-[#e0b974] bg-[#1a2332] px-1 py-0.5 rounded border border-[#d3bc8e]/20;
+  }
+  .corners-ornament {
+    @apply absolute w-3 h-3 border-[#d3bc8e]/40;
+  }
+  .main-input {
+    @apply w-full px-4 py-3 rounded text-sm border outline-none transition-all
+                             placeholder:text-gray-400 pr-10 bg-white border-gray-200 text-gray-900
+                              focus:border-[#dcb054] focus:ring-1 focus:ring-[#dcb054] dark:bg-[#0f1117]
+                               dark:border-[#2b3140] dark:text-white;
+  }
+  .password-eye {
+    @apply absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded cursor-pointer transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-white;
+  }
+  .submit-btn {
+    @apply w-full py-3 px-4 rounded text-sm transition-all cursor-pointer 
+                            shadow-md active:scale-99 
+                            bg-[#383d48] text-[#f5d580] 
+                            hover:bg-[#2b2f38] dark:bg-[#2a2e39] 
+                            dark:text-[#e5bf6c] dark:hover:bg-[#343a48] 
+                            dark:border dark:border-[#3d4455];
   }
 }

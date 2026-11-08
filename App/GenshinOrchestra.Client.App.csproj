@@ -14,7 +14,7 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 
 		<Version>0.1.0</Version>
-		
+
 		<!-- Вшить .NET Runtime -->
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -23,7 +23,7 @@
 		<TrimMode>partial</TrimMode>
 
 		<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
-
+		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 	</PropertyGroup>
 
 	<ItemGroup>

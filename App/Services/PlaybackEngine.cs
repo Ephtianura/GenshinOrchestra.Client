@@ -3,17 +3,17 @@ using System.Diagnostics;
 
 namespace GenshinOrchestra.Client.App.Services
 {
-
-    public class PrecisionPlaybackEngine
+    public static class PrecisionPlaybackEngine
     {
         /// <summary>
         /// Запускает воспроизведение партитуры с высокоточной синхронизацией.
         /// </summary>
         /// <param name="track">Загруженный трек</param>
         /// <param name="serverDeltaMs">Смещение часов: ServerTime - LocalTime</param>
-        /// <param name="cancellationToken">Токен отмены</param>
-        public async Task PlayAsync(TrackData track, long serverDeltaMs = 0, CancellationToken cancellationToken = default)
+        /// <param name="ct">Токен отмены</param>
+        public static async Task PlayAsync(TrackData track, long serverDeltaMs = 0, CancellationToken ct = default)
         {
+            ArgumentNullException.ThrowIfNull(track);
             var sortedEvents = track.Events.OrderBy(e => e.TimeOffsetMs).ToList();
             if (sortedEvents.Count == 0) return;
 
@@ -27,14 +27,14 @@ namespace GenshinOrchestra.Client.App.Services
             if (delayToStart > 0)
             {
                 Console.WriteLine($"[Engine] Ожидание старта трека: {delayToStart} мс...");
-                await Task.Delay((int)delayToStart, cancellationToken);
+                await Task.Delay((int)delayToStart, ct);
             }
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             foreach (var ev in sortedEvents)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                ct.ThrowIfCancellationRequested();
 
                 long targetTimeMs = ev.TimeOffsetMs;
 
@@ -45,7 +45,7 @@ namespace GenshinOrchestra.Client.App.Services
 
                     if (remainingMs > 5)
                     {
-                        await Task.Delay((int)(remainingMs - 2), cancellationToken);
+                        await Task.Delay((int)(remainingMs - 2), ct);
                     }
                     else
                     {

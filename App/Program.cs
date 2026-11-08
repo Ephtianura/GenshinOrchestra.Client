@@ -21,7 +21,7 @@ namespace GenshinOrchestra.Client.App
                 var dispatcher = services.GetRequiredService<PhotinoReflectionDispatcher>();
 
 #if DEBUG
-                CheckUpdates(services, dispatcher, address);
+                //CheckUpdates(services, dispatcher, address);
 #else
                 CheckUpdates(services, dispatcher, address);
 #endif
@@ -33,11 +33,14 @@ namespace GenshinOrchestra.Client.App
                     .SetUseOsDefaultSize(false)
                     .SetUseOsDefaultLocation(false)
                     .SetSize(1280, 720)
-                    .Center()
+                    .SetMinSize(1280, 720)
+                    .SetMaxSize(1600, 900)
+                    //.SetResizable(false)
                     .SetChromeless(false)
-                    .SetResizable(false)
-                    .RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
-                    .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage);
+                    //.RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
+                    
+                    .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage)
+                    .Center();
 #if DEBUG
                 _window.Load("http://localhost:5173");
 #else

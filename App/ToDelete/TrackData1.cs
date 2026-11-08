@@ -56,20 +56,5 @@ namespace GenshinOrchestra.Client.App.ToDelete
         }
     }
 
-    public class TrackEvent
-    {
-        [JsonPropertyName("timeOffsetMs")]
-        public int TimeOffsetMs { get; set; }
-
-        [JsonPropertyName("action")]
-        public string RawAction { get; set; } = "DOWN";
-
-        [JsonPropertyName("keys")]
-        public List<string> Keys { get; set; } = [];
-
-        [JsonIgnore]
-        public KeyAction Action => RawAction.Equals("UP", StringComparison.OrdinalIgnoreCase)
-            ? KeyAction.Release
-            : KeyAction.Press;
-    }
+    
 }

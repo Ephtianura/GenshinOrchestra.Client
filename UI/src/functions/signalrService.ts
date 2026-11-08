@@ -1,99 +1,129 @@
-import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+  LogLevel,
+} from "@microsoft/signalr";
+
+const DEV = import.meta.env.DEV;
+const HUB_URL = DEV
+  ? import.meta.env.VITE_HUB_DEV_URL!
+  : import.meta.env.VITE_HUB_URL!;
 
 type ConnectionStateCallback = (isLost: boolean) => void;
 
 class SignalRService {
-    private connection: HubConnection;
-    private isStarted = false;
-    private listeners: Set<ConnectionStateCallback> = new Set();
-    public isConnectionLost = false;
+  private connection: HubConnection;
+  private isStarted = false;
+  private listeners: Set<ConnectionStateCallback> = new Set();
+  public isConnectionLost = false;
 
-    constructor() {
-        this.connection = new HubConnectionBuilder()
-            .withUrl('http://localhost:5002/hub/')
-            .withAutomaticReconnect()
-            .configureLogging(LogLevel.None)
-            .build();
+  constructor() {
+    this.connection = new HubConnectionBuilder()
+      .withUrl(HUB_URL)
+      .withAutomaticReconnect()
+      .configureLogging(LogLevel.Information)
+      .build();
 
-        this.connection.onreconnecting(() => {
-            this.setConnectionLost(true);
-        });
+    this.connection.onreconnecting(() => {
+      this.setConnectionLost(true);
+    });
 
-        this.connection.onreconnected(() => {
-            console.log('Соединение с сервером восстановлено');
-            this.setConnectionLost(false);
-        });
+    this.connection.onreconnected(async () => {
+      console.log("Соединение с сервером восстановлено");
+      await this.connection.invoke("RejoinRooms");
+      this.setConnectionLost(false);
+    });
 
-        this.connection.onclose(() => {
-            this.setConnectionLost(true);
-        });
+    this.connection.onclose(() => {
+      this.setConnectionLost(true);
+    });
 
-        if (typeof window !== 'undefined') {
-            window.addEventListener('online', () => {
-                console.log('Интернет снова в деле! Пробуем реконнект...');
-                // Если интернета не было или соединение разорвано — сразу пробуем стартовать
-                if (this.isConnectionLost || this.connection.state === HubConnectionState.Disconnected) {
-                    this.start();
-                }
-            });
-
-            window.addEventListener('offline', () => {
-                console.warn('Интернет капут :(');
-                this.setConnectionLost(true);
-            });
+    if (typeof window !== "undefined") {
+      window.addEventListener("online", () => {
+        console.log("Интернет снова в деле! Пробуем реконнект...");
+        // Если интернета не было или соединение разорвано — сразу пробуем стартовать
+        if (
+          this.isConnectionLost ||
+          this.connection.state === HubConnectionState.Disconnected
+        ) {
+          this.start();
         }
+      });
+
+      window.addEventListener("offline", () => {
+        console.warn("Интернет капут :(");
+        this.setConnectionLost(true);
+      });
+    }
+  }
+
+  private setConnectionLost(state: boolean) {
+    if (this.isConnectionLost !== state) {
+      this.isConnectionLost = state;
+      this.listeners.forEach((callback) => callback(state));
+    }
+  }
+
+  public subscribeState(callback: ConnectionStateCallback): () => void {
+    this.listeners.add(callback);
+    callback(this.isConnectionLost);
+
+    return () => {
+      this.listeners.delete(callback);
+    };
+  }
+
+  public async start(): Promise<void> {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      this.setConnectionLost(true);
+      return;
     }
 
-    private setConnectionLost(state: boolean) {
-        if (this.isConnectionLost !== state) {
-            this.isConnectionLost = state;
-            this.listeners.forEach((callback) => callback(state));
-        }
+    if (
+      this.isStarted &&
+      this.connection.state === HubConnectionState.Connected
+    )
+      return;
+
+    try {
+      await this.connection.start();
+      await this.connection.invoke("RejoinRooms");
+      this.isStarted = true;
+      this.setConnectionLost(false);
+    } catch (err) {
+      this.setConnectionLost(true);
+      setTimeout(() => this.start(), 5000);
     }
+  }
 
-    public subscribeState(callback: ConnectionStateCallback): () => void {
-        this.listeners.add(callback);
-        callback(this.isConnectionLost);
+  public async invoke<T>(methodName: string, ...args: any[]): Promise<T> {
+    await this.start();
+    return this.connection.invoke<T>(methodName, ...args);
+  }
 
-        return () => {
-            this.listeners.delete(callback);
-        };
+  // public on(methodName: string, newMethod: (...args: any[]) => void): void {
+  //   this.connection.on(methodName, newMethod);
+  // }
+  public on(methodName: string, newMethod: (...args: any[]) => void): void {
+    const loggedMethod = (...args: any[]) => {
+      console.log(`[SignalR ← ${methodName}]`, ...args);
+      newMethod(...args);
+    };
+
+    this.connection.on(methodName, loggedMethod);
+  }
+
+  public off(
+    methodName: string,
+    methodToDelegate?: (...args: any[]) => void,
+  ): void {
+    if (methodToDelegate) {
+      this.connection.off(methodName, methodToDelegate);
+    } else {
+      this.connection.off(methodName);
     }
-
-    public async start(): Promise<void> {
-        if (typeof navigator !== 'undefined' && !navigator.onLine) {
-            this.setConnectionLost(true);
-            return;
-        }
-
-        if (this.isStarted && this.connection.state === HubConnectionState.Connected) return;
-
-        try {
-            await this.connection.start();
-            this.isStarted = true;
-            this.setConnectionLost(false);
-        } catch (err) {
-            this.setConnectionLost(true);
-            setTimeout(() => this.start(), 5000);
-        }
-    }
-
-    public async invoke<T>(methodName: string, ...args: any[]): Promise<T> {
-        await this.start();
-        return this.connection.invoke<T>(methodName, ...args);
-    }
-
-    public on(methodName: string, newMethod: (...args: any[]) => void): void {
-        this.connection.on(methodName, newMethod);
-    }
-
-    public off(methodName: string, methodToDelegate?: (...args: any[]) => void): void {
-        if (methodToDelegate) {
-            this.connection.off(methodName, methodToDelegate);
-        } else {
-            this.connection.off(methodName);
-        }
-    }
+  }
 }
 
 export const signalRService = new SignalRService();

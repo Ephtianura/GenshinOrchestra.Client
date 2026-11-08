@@ -15,7 +15,8 @@ export function PingIndicator() {
                 : 'var(--bad-ping)'
 
     return (
-        <div className="grid grid-cols-[auto_1fr] items-center w-22 gap-1 py-0.5 px-2 bg-[#55555510] ring-2 ring-[#f0f0f029] rounded-full text-xs"
+            <div className={`grid grid-cols-[auto_1fr] items-center w-22 
+            gap-1 py-0.5 px-2 bg-[#55555510] ring-2 ring-[#f0f0f029] rounded-full text-xs`}
             style={{ color: pingColor }}
         >
             {isConnectionLost ? (

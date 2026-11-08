@@ -1,26 +1,53 @@
-﻿using GenshinOrchestra.Client.App.Models;
+﻿using GenshinOrchestra.Client.App.Extensions;
+using GenshinOrchestra.Client.App.Models;
 
 namespace GenshinOrchestra.Client.App.Services
 {
     public class AppApi()
     {
-        private CancellationTokenSource? _cts;
-
-        public static Task Ping() => Task.CompletedTask;
-
+        public Task Ping() => Task.CompletedTask;
 
         // Для тестирования
-        public static string GetTest(int id) => $"aaaa+ {id}";
-        public static bool TestBool() => true;
+        public string GetTest(int id) => $"aaaa+ {id}";
+        public bool TestBool() => true;
 
-        public static string GetHwid() => AuthService.GenerateHwid();
+        public string GetHwid() => AuthService.GenerateHwid();
+
+
+        private CancellationTokenSource? _cts;
+
+        public async Task Start(TrackData track)
+        {
+            await Stop();
+
+            _cts = new CancellationTokenSource();
+
+            try
+            {
+                await PrecisionPlaybackEngine.PlayAsync(track, serverDeltaMs: 0, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError(ex);
+            }
+            finally
+            {
+                _cts.Dispose();
+                _cts = null;
+            }
+        }
 
         public async Task Stop()
         {
+            if (_cts is null)
+                return;
 
+            await _cts.CancelAsync();
         }
-      
-        public static async Task Start(CancellationToken ct = default)
+        public async Task TestInput(CancellationToken ct = default)
         {
             for (int i = 1; i > 0; i--)
             {
@@ -33,11 +60,10 @@ namespace GenshinOrchestra.Client.App.Services
             long scheduledStartTime = nowUtc + 500;
 
             // Загружаем тестовый JSON-объект
-            TrackData track = TrackData.GetMockTrack(scheduledStartTime);
+            var track = TrackData.GetMockTrack(scheduledStartTime);
 
             // Запуск движка
-            var engine = new PrecisionPlaybackEngine();
-            await engine.PlayAsync(track, serverDeltaMs: 0);
+            await PrecisionPlaybackEngine.PlayAsync(track, serverDeltaMs: 0, ct);
 
             Console.WriteLine("\nТест успешно завершен.");
         }

@@ -1,5 +1,4 @@
-﻿using GenshinOrchestra.Client.App.ToDelete;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace GenshinOrchestra.Client.App.Models
 {
@@ -77,7 +76,7 @@ namespace GenshinOrchestra.Client.App.Models
             _track.Events.Add(new TrackEvent
             {
                 TimeOffsetMs = _currentOffsetMs,
-                RawAction = "DOWN",
+                Action = KeyAction.Press,
                 Keys = [.. keys]
             });
             return this;
@@ -87,12 +86,24 @@ namespace GenshinOrchestra.Client.App.Models
             _track.Events.Add(new TrackEvent
             {
                 TimeOffsetMs = _currentOffsetMs,
-                RawAction = "UP",
+                Action = KeyAction.Release,
                 Keys = [.. keys]
             });
             return this;
         }
 
         public TrackData Build() => _track;
+    }
+
+    public class TrackEvent
+    {
+        [JsonPropertyName("timeOffsetMs")]
+        public int TimeOffsetMs { get; set; }
+
+        [JsonPropertyName("action")]
+        public KeyAction Action { get; set; }
+
+        [JsonPropertyName("keys")]
+        public List<string> Keys { get; set; } = [];
     }
 }

@@ -16,9 +16,9 @@ namespace GenshinOrchestra.Client.App.Extensions
             // MainApi
             services.AddHttpClient<IMainApi,
 #if DEBUG
-                MainApi
-#else
                 MockMainApi
+#else
+                MainApi
 #endif
                 >(client =>
             {

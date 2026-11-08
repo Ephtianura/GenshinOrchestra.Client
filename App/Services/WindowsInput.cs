@@ -1,4 +1,5 @@
-﻿using GenshinOrchestra.Client.App.Models;
+﻿using GenshinOrchestra.Client.App.Extensions;
+using GenshinOrchestra.Client.App.Models;
 using System.Runtime.InteropServices;
 
 namespace GenshinOrchestra.Client.App
@@ -77,7 +78,7 @@ namespace GenshinOrchestra.Client.App
             if (result == 0)
             {
                 int errorCode = Marshal.GetLastWin32Error();
-                Console.WriteLine($"[Error] SendInput failed. Win32 Error Code: {errorCode}");
+                AppLogger.Log($"[Error] SendInput failed. Win32 Error Code: {errorCode}");
             }
         }
     }

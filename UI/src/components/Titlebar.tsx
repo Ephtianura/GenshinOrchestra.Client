@@ -26,7 +26,6 @@ export default function Titlebar() {
                 <button
                     onClick={handleMinimize}
                     type="button"
-                    title="Свернуть"
                     className="flex h-full w-12 items-center justify-center text-zinc-400 transition-colors hover:bg-zinc-800  active:bg-zinc-700"
                 >
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +36,6 @@ export default function Titlebar() {
                 <button
                     onClick={handleClose}
                     type="button"
-                    title="Закрыть"
                     className="flex h-full w-12 items-center justify-center transition-colors hover:bg-zinc-800  active:bg-zinc-700 "
                 >
                     <IoClose className="text-zinc-400 w-5 h-5" />
@@ -53,7 +51,6 @@ export default function Titlebar() {
 {/* <button
     onClick={handleClose}
     type="button"
-    title="Закрыть"
     className="flex p-[2px] items-center justify-center transition-colors hover:bg-[#01010151]  active:bg-[#010101c0] rounded-sm"
 >
     <IoClose className="text-white w-5 h-5" />

@@ -1,5 +1,6 @@
 ﻿using GenshinOrchestra.Client.App.Contracts;
 using GenshinOrchestra.Client.App.Dto;
+using GenshinOrchestra.Client.App.Extensions;
 using GenshinOrchestra.Client.App.Models;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,8 +12,17 @@ namespace GenshinOrchestra.Client.App.Services
         private readonly HttpClient _httpClient = httpClient;
         public async Task<UpdateInfoResponse?> GetLatestVerAsync(CancellationToken ct = default)
         {
-            return await ExecuteAsync(async () =>
-                await _httpClient.GetFromJsonAsync<UpdateInfoResponse>("client/check-update", ct));
+            try
+            {
+                return await ExecuteAsync(async () =>
+                    await _httpClient.GetFromJsonAsync<UpdateInfoResponse>("client/check-update", ct));
+            }
+            catch (Exception ex)
+            {
+                AppLogger.LogError(ex);
+                return null;
+            }
+
         }
 
         private static async Task<T> ExecuteAsync<T>(Func<Task<T>> action)

@@ -64,7 +64,7 @@ namespace GenshinOrchestra.Client.App.Extensions
                 }
                 catch (Exception ex)
                 {
-                    AppLogger.Log(ex);
+                    AppLogger.LogError(ex);
                     SendError(window, requestId, ex.InnerException?.Message ?? ex.Message);
                 }
             });
@@ -80,6 +80,10 @@ namespace GenshinOrchestra.Client.App.Extensions
                 if (paramsElement.ValueKind == JsonValueKind.Object && p.Name != null && paramsElement.TryGetProperty(p.Name, out var propVal))
                 {
                     args[i] = JsonSerializer.Deserialize(propVal.GetRawText(), p.ParameterType);
+                }
+                else if (parameters.Length == 1 && paramsElement.ValueKind == JsonValueKind.Object)
+                {
+                    args[i] = JsonSerializer.Deserialize(paramsElement.GetRawText(), p.ParameterType);
                 }
                 else if (paramsElement.ValueKind == JsonValueKind.Array && i < paramsElement.GetArrayLength())
                 {
@@ -113,4 +117,5 @@ namespace GenshinOrchestra.Client.App.Extensions
         public string Method { get; set; } = string.Empty;
         public JsonElement Params { get; set; }
     }
+
 }
