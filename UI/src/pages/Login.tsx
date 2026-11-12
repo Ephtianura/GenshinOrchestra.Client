@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { IoClose, IoEye, IoEyeOff } from 'react-icons/io5';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { send } from "../bridge/send";
 import { useAuth } from '../components/AuthContext';
 import { login as loginF } from '../functions/login';
-import { send } from "../bridge/send";
 
 export function Login() {
     const [showPassword, setShowPassword] = useState<boolean>(false);

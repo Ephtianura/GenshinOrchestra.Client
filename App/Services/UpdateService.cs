@@ -22,7 +22,7 @@ namespace GenshinOrchestra.Client.App.Services
         /// <returns>True - если обновление найдено и окно было запущено. False - если обновлений нет.</returns>
         public async Task<bool> RunUpdateUIIfAvailableAsync(PhotinoReflectionDispatcher dispatcher, string iconPath, string address)
         {
-            var updateInfo = await CheckForUpdatesAsync();
+            var updateInfo = CheckForUpdatesAsync().GetAwaiter().GetResult();
             if (updateInfo == null) return false;
 
             var window = new PhotinoWindow()
@@ -40,15 +40,10 @@ namespace GenshinOrchestra.Client.App.Services
 #else
             window.SetDevToolsEnabled(false).Load($"{address}/updating.html");
 #endif
-
-            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
-                window.SetIconFile(iconPath);
-
             _ = Task.Run(async () =>
             {
-#if DEBUG
-                await Task.Delay(500);
-#endif
+                await Task.Delay(500); // Ожидание для инициализации окна
+
                 try
                 {
                     window.SendToReact("UpdateProgress", new ProgressPayload(0, "Подготовка к загрузке..."));
@@ -101,7 +96,6 @@ namespace GenshinOrchestra.Client.App.Services
             return null;
         }
 
-
         /// <summary>
         /// Скачивает установщик и запускает обновление.
         /// </summary>
@@ -136,7 +130,11 @@ namespace GenshinOrchestra.Client.App.Services
 
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
                     {
-                        await Task.Delay(5);
+#if DEBUG
+                        await Task.Delay(10, ct);
+#else
+                        await Task.Delay(1, ct); // Задержка в 1мс. чтобы показать милую гифку с Фуриной (Простите)
+#endif
                         await fileStream.WriteAsync(buffer, 0, bytesRead, ct);
                         totalRead += bytesRead;
 
@@ -200,7 +198,8 @@ namespace GenshinOrchestra.Client.App.Services
                 }
                 onProgress?.Invoke(new ProgressPayload(100, "Загрузка завершена"));
 
-                await Task.Delay(5000);
+                await Task.Delay(1500, ct); // Сколько показывать пользователю 100% перед перезапуском
+
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = tempPath,

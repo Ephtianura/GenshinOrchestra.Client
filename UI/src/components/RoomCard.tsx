@@ -9,13 +9,11 @@ interface RoomCardProps {
 export const RoomCard = ({ room, onClick }: RoomCardProps) => {
     let statusText = 'Активна';
     let statusTextColor = 'text-emerald-400';
-    let statusDotColor = 'bg-emerald-400';
     let cardClasses = "flex items-center justify-between p-3 rounded-lg border border-[#d3bc8e]/10 bg-[#17202e]/50 opacity-90 transition-all hover:opacity-100 hover:border-[#d3bc8e]/30 cursor-pointer";
 
     if (!room.isActive) {
         statusText = 'Закрыта';
         statusTextColor = 'text-gray-500';
-        statusDotColor = 'bg-gray-500';
         cardClasses = "flex items-center justify-between p-3 rounded-lg border border-gray-700/30 bg-[#12161f]/50 opacity-50 transition-all";
     }
 

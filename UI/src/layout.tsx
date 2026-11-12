@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useDesktopGuards } from './functions/useKeysBlock';
+// import { useDesktopGuards } from './functions/useKeysBlock';
 // import Titlebar from './components/Titlebar';
-import { PingIndicator } from './components/PingIndicator';
-import { send } from './bridge/send';
-import Home from "./pages/Home";
 import {
   BrowserRouter,
-  Routes,
   Route,
+  Routes,
 } from "react-router-dom";
+import { send } from './bridge/send';
 import { AuthProvider } from './components/AuthContext';
-import { ProtectedRoute } from './pages/ProtectedRoute';
+import Home from "./pages/Home";
 import { Login } from './pages/Login';
+import { ProtectedRoute } from './pages/ProtectedRoute';
 import { Register } from './pages/Register';
 
 export default function Layout() {
-  useDesktopGuards();
+  // useDesktopGuards();
 
   const [result, setResult] = useState<string | null>(null)
 

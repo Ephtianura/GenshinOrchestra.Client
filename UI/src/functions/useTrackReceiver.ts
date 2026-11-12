@@ -9,19 +9,35 @@ export const useTrackReceiver = (isReady: boolean) => {
     isReadyRef.current = isReady;
   }, [isReady]);
 
-  // Получение трека
+  // Подписка на все ноты
   useEffect(() => {
     const handleReceiveNotes = (track: Record<string, unknown>) => {
-      console.log(track);
+      console.log("ReceiveNotes:", track);
       if (!isReadyRef.current) return;
 
-       send.invoke("Start", { track: track }).catch(console.error);
+      send.invoke("Start", { track: track }).catch(console.error);
     };
 
     signalRService.on("ReceiveNotes", handleReceiveNotes);
 
     return () => {
       signalRService.off("ReceiveNotes");
+    };
+  }, []);
+
+  // Подписка на комнатные ноты
+  useEffect(() => {
+    const handleReceiveRoomNotes = (track: Record<string, unknown>) => {
+      console.log("ReceiveRoomNotes:", track);
+      if (!isReadyRef.current) return;
+
+      send.invoke("Start", { track: track }).catch(console.error);
+    };
+
+    signalRService.on("ReceiveRoomNotes", handleReceiveRoomNotes);
+
+    return () => {
+      signalRService.off("ReceiveRoomNotes");
     };
   }, []);
 

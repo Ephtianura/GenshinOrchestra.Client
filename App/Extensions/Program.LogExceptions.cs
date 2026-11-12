@@ -7,8 +7,14 @@ namespace GenshinOrchestra.Client.App
     {
         private static void LogAndShowException(Exception ex)
         {
-            AppLogger.LogError(ex);
-            MessageBox(IntPtr.Zero, $"Произошла критическая ошибка :<\nЛог записан в /logs/error.log\n\n{ex.Message}", "Genshin Orchestra", 0x00000000 | 0x00000010);
+            var fileName = AppLogger.LogError(ex);
+            MessageBox(IntPtr.Zero,
+                $"Произошла критическая ошибка :< \n" +
+                $"{(!string.IsNullOrEmpty(fileName) ? $"Лог записан в \"logs/{fileName}\"" : "")} \n\n" +
+                $"{ex.Message}",
+                "Genshin Orchestra",
+                0x00000000 | 0x00000010
+            );
         }
 
         #region DllImport

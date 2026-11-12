@@ -5,8 +5,9 @@ namespace GenshinOrchestra.Client.App.Services
 {
     public class MockMainApi(HttpClient httpClient) : IMainApi
     {
-        public Task<UpdateInfoResponse?> GetLatestVerAsync(CancellationToken ct = default)
+        public async Task<UpdateInfoResponse?> GetLatestVerAsync(CancellationToken ct = default)
         {
+            await Task.Delay(2000, ct);
             var mockData = new UpdateInfoResponse
             {
                 Version = "1.5.0",
@@ -15,7 +16,7 @@ namespace GenshinOrchestra.Client.App.Services
                 ReleaseNotes = "Тестовое обновление 1.5.0"
             };
 
-            return Task.FromResult<UpdateInfoResponse?>(mockData);
+            return await Task.FromResult<UpdateInfoResponse?>(mockData);
         }
     }
 }

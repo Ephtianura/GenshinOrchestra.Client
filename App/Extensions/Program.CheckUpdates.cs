@@ -8,7 +8,13 @@ namespace GenshinOrchestra.Client.App
     {
         private static void CheckUpdates(IServiceProvider services, PhotinoReflectionDispatcher dispatcher, string address)
         {
-            if (services.GetRequiredService<UpdateService>().RunUpdateUIIfAvailableAsync(dispatcher, iconPath, address).GetAwaiter().GetResult()) return;
+            if (services.GetRequiredService<UpdateService>()
+                    .RunUpdateUIIfAvailableAsync(dispatcher, iconPath, address)
+                        .GetAwaiter()
+                        .GetResult())
+            {
+                return;
+            }
         }
     }
 }

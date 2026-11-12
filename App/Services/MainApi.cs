@@ -15,14 +15,13 @@ namespace GenshinOrchestra.Client.App.Services
             try
             {
                 return await ExecuteAsync(async () =>
-                    await _httpClient.GetFromJsonAsync<UpdateInfoResponse>("client/check-update", ct));
+                    await _httpClient.GetFromJsonAsync<UpdateInfoResponse>("client/version", ct));
             }
             catch (Exception ex)
             {
                 AppLogger.LogError(ex);
                 return null;
             }
-
         }
 
         private static async Task<T> ExecuteAsync<T>(Func<Task<T>> action)

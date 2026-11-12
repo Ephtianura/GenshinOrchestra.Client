@@ -88,6 +88,9 @@ export default function Updating() {
 
             <div className="flex items-start justify-between gap-2 text-xs h-10">
               <span className="text-[#a6adc8]">Осталось времени: {state.timeStr}</span>
+              {state.percent >= 100 &&
+                <span> Перезапуск приложения… </span>
+              }
               {state.percent < 100 &&
                 <div className='flex flex-col text-[12px]'>
                   <div>
@@ -104,6 +107,7 @@ export default function Updating() {
                 </div>
               }
             </div>
+
           </div>
         )}
       </div>
