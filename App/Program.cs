@@ -7,8 +7,8 @@ namespace GenshinOrchestra.Client.App
     internal static partial class Program
     {
         private static PhotinoWindow _window;
-        private readonly static string iconPath = Path.Combine("icon.ico");
-        private const string windlowTitle = "Genshin Orchestra Client "; // Пробел важен для иконки.
+        private const string IconPath = "icon.ico";
+        private const string WindowTitle = "Genshin Orchestra Client "; // Пробел важен для иконки.
 
         [STAThread]
         static void Main()
@@ -25,22 +25,20 @@ namespace GenshinOrchestra.Client.App
 #else
                 CheckUpdates(services, dispatcher, address);
 #endif
-                CheckFirstInstance();
+                if (!EnsureSingleInstance()) return;
 
                 _window = new PhotinoWindow()
-                    .SetTitle(windlowTitle)
-                    .SetIconFile(iconPath)
+                    .SetTitle(WindowTitle)
+                    .SetIconFile(IconPath)
                     .SetUseOsDefaultSize(false)
                     .SetUseOsDefaultLocation(false)
-                    .SetSize(1280, 720)
                     .SetMinSize(1280, 720)
                     .SetMaxSize(1600, 900)
-                    //.SetResizable(false)
                     .SetChromeless(false)
-                    //.RegisterWindowCreatedHandler((sender, e) => EnableMinimizeButton(_window.WindowHandle))
-                    
+                    .RegisterWindowCreatedHandler((sender, e) => DisableMaximizeButton(_window.WindowHandle))
                     .RegisterWebMessageReceivedHandler(dispatcher.HandleMessage)
                     .Center();
+
 #if DEBUG
                 _window.Load("http://localhost:5173");
 #else

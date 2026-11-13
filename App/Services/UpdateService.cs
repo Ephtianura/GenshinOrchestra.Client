@@ -12,7 +12,7 @@ namespace GenshinOrchestra.Client.App.Services
     {
         private readonly IMainApi _mainApi = mainApi;
         private readonly HttpClient _httpClient = httpClient;
-        private const string iconTitle = "Genshin Orchestra – Обновление...";
+        private const string WindowTitle = "Genshin Orchestra – Обновление...";
         public Version CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(9, 9, 9);
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace GenshinOrchestra.Client.App.Services
             if (updateInfo == null) return false;
 
             var window = new PhotinoWindow()
-                .SetTitle(iconTitle)
+                .SetTitle(WindowTitle)
                 .SetIconFile(iconPath)
                 .SetUseOsDefaultSize(false)
                 .SetUseOsDefaultLocation(false)

@@ -2,12 +2,15 @@
 
 namespace GenshinOrchestra.Client.App.Extensions
 {
+    /// <summary>
+    /// Обеспечивает работу приложения только в одном экземпляре
+    /// и позволяет открыть уже запущенный экземпляр.
+    /// </summary>
     public static class SingleInstance
     {
         private const string MutexName = @"Local\GenshinOrchestra";
         private const string EventName = @"Local\GenshinOrchestra.Activate";
         private const string WindowTitle = "Genshin Orchestra Client ";
-
 
         private static readonly Mutex Mutex;
         private static readonly EventWaitHandle ActivateEvent;
@@ -56,6 +59,10 @@ namespace GenshinOrchestra.Client.App.Extensions
             }
         }
 
+        /// <summary>
+        /// Отправляет сигнал уже запущенному экземпляру приложения
+        /// для восстановления его окна и перевода на передний план.
+        /// </summary>
         public static void ActivateExisting()
         {
             ActivateEvent.Set();

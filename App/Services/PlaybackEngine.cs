@@ -14,6 +14,7 @@ namespace GenshinOrchestra.Client.App.Services
         public static async Task PlayAsync(TrackData track, long serverDeltaMs = 0, CancellationToken ct = default)
         {
             ArgumentNullException.ThrowIfNull(track);
+
             var sortedEvents = track.Events.OrderBy(e => e.TimeOffsetMs).ToList();
             if (sortedEvents.Count == 0) return;
 
