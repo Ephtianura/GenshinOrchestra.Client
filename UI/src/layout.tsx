@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-// import { useDesktopGuards } from './functions/useKeysBlock';
+import { useDesktopGuards } from './functions/useKeysBlock';
 // import Titlebar from './components/Titlebar';
 import {
   BrowserRouter,
@@ -14,7 +14,7 @@ import { ProtectedRoute } from './pages/ProtectedRoute';
 import { Register } from './pages/Register';
 
 export default function Layout() {
-  // useDesktopGuards();
+  useDesktopGuards();
 
   const [result, setResult] = useState<string | null>(null)
 
