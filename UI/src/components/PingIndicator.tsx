@@ -5,7 +5,8 @@ import { useSignalRState } from '../functions/useSignalRState';
 import { CircleSpinner } from './CircleSpinner';
 
 export function PingIndicator() {
-    const displayPing = usePing();
+    const {displayPing} = usePing();
+    
     const { isConnectionLost } = useSignalRState();
     const [isLongConnectionLost, setIsLongConnectionLost] = useState(false);
 

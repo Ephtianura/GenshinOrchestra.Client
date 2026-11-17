@@ -1,47 +1,77 @@
 import { useEffect, useRef } from "react";
 import { signalRService } from "./signalrService";
 import { send } from "../bridge/send";
+import { usePing } from "./usePing";
 
-export const useTrackReceiver = (isReady: boolean) => {
+export const useTrackReceiver = (
+  isReady: boolean,
+  currentRoomId: string | null,
+) => {
   const isReadyRef = useRef(isReady);
+  const currentRoomIdRef = useRef(currentRoomId);
+
+  isReadyRef.current = isReady;
+
+  const {serverDeltaMs} = usePing();
+  console.warn(serverDeltaMs);
+
+  const serverDeltaMsRef = useRef(serverDeltaMs);
 
   useEffect(() => {
-    isReadyRef.current = isReady;
-  }, [isReady]);
+    serverDeltaMsRef.current = serverDeltaMs;
+  }, [serverDeltaMs]);
 
-  // Подписка на все ноты
+  // Глобальные ноты
   useEffect(() => {
     const handleReceiveNotes = (track: Record<string, unknown>) => {
       console.log("ReceiveNotes:", track);
       if (!isReadyRef.current) return;
 
-      send.invoke("Start", { track: track }).catch(console.error);
+      console.warn(serverDeltaMsRef.current);
+        send.invoke("Start", { track, serverDeltaMs: serverDeltaMsRef.current }).catch(console.error);
+    };
+
+    const handleStop = () => {
+      send.invoke("Stop").catch(console.error);
     };
 
     signalRService.on("ReceiveNotes", handleReceiveNotes);
+    signalRService.on("Stop", handleStop);
 
     return () => {
-      signalRService.off("ReceiveNotes");
+      signalRService.off("ReceiveNotes", handleReceiveNotes);
+      signalRService.off("Stop", handleStop);
     };
   }, []);
 
-  // Подписка на комнатные ноты
+  // Комнатные ноты
   useEffect(() => {
-    const handleReceiveRoomNotes = (track: Record<string, unknown>) => {
-      console.log("ReceiveRoomNotes:", track);
+    const handleReceiveRoomNotes = (
+      track: Record<string, unknown>,
+      roomId: string,
+    ) => {
+      if (roomId !== currentRoomIdRef.current) return;
       if (!isReadyRef.current) return;
 
-      send.invoke("Start", { track: track }).catch(console.error);
+      send.invoke("Start", { track, serverDeltaMs: serverDeltaMsRef.current }).catch(console.error);
+    };
+
+    const handleStopRoom = (roomId: string) => {
+      if (roomId !== currentRoomIdRef.current) return;
+
+      send.invoke("Stop").catch(console.error);
     };
 
     signalRService.on("ReceiveRoomNotes", handleReceiveRoomNotes);
+    signalRService.on("StopRoom", handleStopRoom);
 
     return () => {
-      signalRService.off("ReceiveRoomNotes");
+      signalRService.off("ReceiveRoomNotes", handleReceiveRoomNotes);
+      signalRService.off("StopRoom", handleStopRoom);
     };
   }, []);
 
-  // Остановка
+  // Остановка при потере готовности
   useEffect(() => {
     if (isReady) return;
 

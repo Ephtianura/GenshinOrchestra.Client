@@ -6,59 +6,70 @@ namespace GenshinOrchestra.Client.App.Services
     public static class PrecisionPlaybackEngine
     {
         /// <summary>
-        /// Запускает воспроизведение партитуры с высокоточной синхронизацией.
+        /// Запускает воспроизведение партитуры.
         /// </summary>
         /// <param name="track">Загруженный трек</param>
-        /// <param name="serverDeltaMs">Смещение часов: ServerTime - LocalTime</param>
+        /// <param name="serverDeltaMs">Смещение локальных часов относительно сервера</param>
         /// <param name="ct">Токен отмены</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="OperationCanceledException"></exception>
+        /// Максимальный допустимый рассинхрон 30мс. В идеале < 20. Это не гарантия метода, а требование к приложению.
         public static async Task PlayAsync(TrackData track, long serverDeltaMs = 0, CancellationToken ct = default)
         {
-            ArgumentNullException.ThrowIfNull(track);
+            ArgumentNullException.ThrowIfNull(track); // Исключение если нет трека.
 
-            var sortedEvents = track.Events.OrderBy(e => e.TimeOffsetMs).ToList();
-            if (sortedEvents.Count == 0) return;
+            var events = track.Events; // Убрал сортировку чтобы не нагружать проц и gc огромными объектами перед началом.
+            if (events.Count == 0) return;
 
-            Console.WriteLine($"[Engine] Подготовка трека '{track.TrackId}'. Событий: {sortedEvents.Count}");
-
-            // Вычисляем целевое локальное время старта
+            // Локальное время старта
             long targetStartLocalUtcMs = track.StartTimeUtcMs - serverDeltaMs;
-            long currentLocalUtcMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            long delayToStart = targetStartLocalUtcMs - currentLocalUtcMs;
 
-            if (delayToStart > 0)
-            {
-                Console.WriteLine($"[Engine] Ожидание старта трека: {delayToStart} мс...");
-                await Task.Delay((int)delayToStart, ct);
-            }
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            foreach (var ev in sortedEvents)
+            // Пробуждает поток за 10мс до старта и крутит его в цикле пока не достигним нужного времени.
+            // Вместо старого Task.Delay(), который мог пробудиться на позже.
+            // В теории, должно стартовать точнее и надёжнее на машинах.
+            // Подробные комментарии ниже, принцип тот же.
+            while (true)
             {
                 ct.ThrowIfCancellationRequested();
+                long remainingToStart = targetStartLocalUtcMs - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-                long targetTimeMs = ev.TimeOffsetMs;
+                if (remainingToStart <= 0) break;
 
-                // Гибридный планировщик: Task.Delay для длинного паузы + SpinWait для точности
-                while (stopwatch.ElapsedMilliseconds < targetTimeMs)
+                if (remainingToStart > 15) // Why 15? Because у Винды 64 такта в секунду. 1000/64 = ~15.62ms
                 {
-                    long remainingMs = targetTimeMs - stopwatch.ElapsedMilliseconds;
+                    await Task.Delay((int)(remainingToStart - 10), ct);
+                }
+                else
+                {
+                    Thread.SpinWait(100);
+                }
+            }
 
-                    if (remainingMs > 5)
+            Stopwatch stopwatch = Stopwatch.StartNew(); // Локальный таймер в момент начала воспроизведения.
+
+            // Перебор всех ивентов
+            foreach (var ev in events)
+            {
+                ct.ThrowIfCancellationRequested(); // Отмена воспроизведения.
+
+                long targetTimeMs = ev.TimeOffsetMs; // Целевое время нажатия относительно начала. Например: 3250мс.
+
+                // Ожидание нужного момента
+                while (stopwatch.ElapsedMilliseconds < targetTimeMs)                 // Если время ещё не наступило:
+                {
+                    long remainingMs = targetTimeMs - stopwatch.ElapsedMilliseconds; // Считаем, а сколько осталось-то?
+                             
+                    if (remainingMs > 15)                                            // Если ждать осталось больше 15мс. 
                     {
-                        await Task.Delay((int)(remainingMs - 2), ct);
+                        await Task.Delay((int)(remainingMs - 10), ct);               // Усыпляем поток, но пробуждаем за 10мс до начала, чтобы дать ему время проснуться.
                     }
-                    else
+                    else                                                             // Иначе
                     {
-                        // Активный SpinWait за 2 мс до наступления кванта времени
-                        Thread.SpinWait(100);
+                        Thread.SpinWait(100);                                        // Крутим ядро 100 тактов ( ~25нс ) при 4ГГц процессоре. И по новой, пока не выйдем из while.
                     }
                 }
 
-                // Выполнение события
-                long actualTimeMs = stopwatch.ElapsedMilliseconds;
-                Console.WriteLine($"[{actualTimeMs,5} ms] [Target: {targetTimeMs} ms] Action: {ev.Action,-7} Keys: [{string.Join(", ", ev.Keys)}]");
-
+                // Нажатие клавиш
                 foreach (string keyStr in ev.Keys)
                 {
                     if (!string.IsNullOrWhiteSpace(keyStr))
@@ -69,7 +80,6 @@ namespace GenshinOrchestra.Client.App.Services
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"[Engine] Воспроизведение трека завершено за {stopwatch.ElapsedMilliseconds} мс.");
         }
     }
 }

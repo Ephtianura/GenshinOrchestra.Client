@@ -8,64 +8,66 @@ namespace GenshinOrchestra.Client.App.Services
         public Task Ping() => Task.CompletedTask;
 
         // Для тестирования
-        public string GetTest(int id) => $"aaaa+ {id}";
-        public bool TestBool() => true;
+        public string GetTest(int id) => $"Test aaaa + {id}";
 
         public string GetHwid() => AuthService.GenerateHwid();
 
 
         private CancellationTokenSource? _cts;
+        private readonly object _lock = new();
 
-        public async Task Start(TrackData track)
+        public async Task Start(TrackData track, int serverDeltaMs)
         {
-            await Stop();
+            CancellationTokenSource cts;
 
-            _cts = new CancellationTokenSource();
+            lock (_lock)
+            {
+                _cts?.Cancel();
+
+                cts = new CancellationTokenSource();
+                _cts = cts;
+            }
 
             try
             {
-                await PrecisionPlaybackEngine.PlayAsync(track, serverDeltaMs: 0, _cts.Token);
+                await PrecisionPlaybackEngine.PlayAsync(
+                    track,
+                    serverDeltaMs,
+                    cts.Token
+                );
             }
-            catch (OperationCanceledException)
-            {
-            }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
                 AppLogger.LogError(ex);
             }
             finally
             {
-                _cts.Dispose();
-                _cts = null;
+                lock (_lock)
+                {
+                    if (_cts == cts)
+                        _cts = null;
+                }
+
+                cts.Dispose();
             }
         }
 
-        public async Task Stop()
+        public void Stop()
         {
-            if (_cts is null)
-                return;
-
-            await _cts.CancelAsync();
+            lock (_lock)
+            {
+                _cts?.Cancel();
+            }
         }
+
         public async Task TestInput(CancellationToken ct = default)
         {
-            for (int i = 1; i > 0; i--)
-            {
-                Console.WriteLine($"Старт через {i} сек...");
-                await Task.Delay(1000);
-            }
-
-            // Эмуляция: старт трека планируется через 500 мс от текущего момента
             long nowUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            long scheduledStartTime = nowUtc + 500;
+            long scheduledStartTime = nowUtc + 1000;
 
-            // Загружаем тестовый JSON-объект
             var track = TrackData.GetMockTrack(scheduledStartTime);
-
-            // Запуск движка
-            await PrecisionPlaybackEngine.PlayAsync(track, serverDeltaMs: 0, ct);
-
-            Console.WriteLine("\nТест успешно завершен.");
+            await PrecisionPlaybackEngine.PlayAsync(track, 0, ct);
         }
     }
 }

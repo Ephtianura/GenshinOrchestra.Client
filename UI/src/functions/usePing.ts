@@ -1,56 +1,75 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signalRService } from "./signalrService";
 
-// Делает запрос к hub/Ping каждые 3 секунды, 
+interface PingResponse {
+  serverTimeUtcMs: number;
+}
+
+// Делает запрос к hub/Ping каждые 3 секунды,
 // считает время запроса, сглаживает и округляет значение до целого в промежутке 0-999.
+// а также считает разницу во времени между сервером и клиентом
 export function usePing() {
-    const [displayPing, setDisplayPing] = useState<number>(0);
+  const [displayPing, setDisplayPing] = useState(0);
+  const [serverDeltaMs, setServerDeltaMs] = useState(0);
 
-    useEffect(() => {
-        let intervalId: number | null = null;
-        let isMounted = true;
+  const previousPingRef = useRef(0);
 
-        const sendRandomRequest = () => {
-            if (signalRService.isConnectionLost || !isMounted) return;
+  useEffect(() => {
+    let intervalId: number | null = null;
+    let isMounted = true;
 
-            const startTime = performance.now();
+    const sendRandomRequest = () => {
+      if (signalRService.isConnectionLost || !isMounted) return;
 
-            signalRService
-                .invoke("Ping")
-                .then(() => {
-                    if (!isMounted) return;
+      const startTime = performance.now();
 
-                    const rawPing = Math.round(performance.now() - startTime);
-                    const clampedPing = Math.max(0, Math.min(rawPing, 999));
+      signalRService
+        .invoke<PingResponse>("Ping")
+        .then((res) => {
+          if (!isMounted) return;
 
-                    setDisplayPing((prevDisplay) => {
-                        if (prevDisplay === 0) return clampedPing;
+  console.error(res);
 
-                        // Сглаживание: 40% нового значения, 60% старого значения.
-                        const smoothed = Math.round(clampedPing * 0.4 + prevDisplay * 0.6);
-                        return Math.max(0, Math.min(smoothed, 999));
-                    });
-                })
-                .catch((err) => {
-                    if (isMounted) {
-                        console.error("Ping Invoke Error: ", err);
-                    }
-                });
-        };
+          const rawPing = Math.round(performance.now() - startTime);
+          const clampedPing = Math.max(0, Math.min(rawPing, 999));
 
-        signalRService.start().then(() => {
-            if (!isMounted) return;
-            sendRandomRequest();
-            intervalId = window.setInterval(sendRandomRequest, 3000);
+          const smoothed =
+            previousPingRef.current === 0
+              ? clampedPing
+              : Math.round(clampedPing * 0.4 + previousPingRef.current * 0.6);
+
+          previousPingRef.current = smoothed;
+          setDisplayPing(smoothed);
+
+          const oneWayDelay = smoothed / 2;
+          const estimatedServerTime = res.serverTimeUtcMs + oneWayDelay;
+
+          setServerDeltaMs(estimatedServerTime - Date.now());
+        })
+        .catch((err) => {
+          if (isMounted) {
+            console.error("Ping Invoke Error: ", err);
+          }
         });
+    };
 
-        return () => {
-            isMounted = false;
-            if (intervalId !== null) {
-                clearInterval(intervalId);
-            }
-        };
-    }, []);
+    signalRService.start().then(() => {
+      if (!isMounted) return;
 
-    return displayPing;
+      sendRandomRequest();
+      intervalId = window.setInterval(sendRandomRequest, 3000);
+    });
+
+    return () => {
+      isMounted = false;
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+      }
+    };
+  }, []);
+
+  return {
+    displayPing,
+    serverDeltaMs,
+  };
 }

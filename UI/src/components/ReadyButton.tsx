@@ -9,7 +9,7 @@ interface ReadyButtonProps {
 export const ReadyButton = ({ roomId, userId }: ReadyButtonProps) => {
     const { isReady, toggleReady } = useReady(roomId, userId ?? "");
 
-    useTrackReceiver(isReady);
+    useTrackReceiver(isReady, roomId);
 
     if (!roomId || !userId) return null;
     
