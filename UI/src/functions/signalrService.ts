@@ -36,6 +36,7 @@ class SignalRService {
     });
 
     this.connection.onclose(() => {
+      this.isStarted = false; 
       this.setConnectionLost(true);
     });
 
@@ -102,17 +103,16 @@ class SignalRService {
     return this.connection.invoke<T>(methodName, ...args);
   }
 
-  // public on(methodName: string, newMethod: (...args: any[]) => void): void {
-  //   this.connection.on(methodName, newMethod);
-  // }
   public on(methodName: string, newMethod: (...args: any[]) => void): void {
-    const loggedMethod = (...args: any[]) => {
-      console.log(`[SignalR ← ${methodName}]`, ...args);
-      newMethod(...args);
-    };
-
-    this.connection.on(methodName, loggedMethod);
+    this.connection.on(methodName, newMethod);
   }
+  // public on(methodName: string, newMethod: (...args: any[]) => void): void {
+  //   const loggedMethod = (...args: any[]) => {
+  //     console.log(`[SignalR ← ${methodName}]`, ...args);
+  //     newMethod(...args);
+  //   };
+  //   this.connection.on(methodName, loggedMethod);
+  // }
 
   public off(
     methodName: string,

@@ -1,10 +1,10 @@
 import { parseApiErrors } from "./parseApiErrors";
 
-const DEV = import.meta.env.DEV
+const DEV = import.meta.env.DEV;
 
 const API_URL = DEV
-    ? import.meta.env.VITE_API_DEV_URL!
-    : import.meta.env.VITE_API_URL!;
+  ? import.meta.env.VITE_API_DEV_URL!
+  : import.meta.env.VITE_API_URL!;
 
 type ApiFetchOptions = RequestInit & {
   cookieHeader?: string;
@@ -84,7 +84,7 @@ export async function apiFetch<T>(
       data,
     );
   }
-
+ 
   // Парсинг ошибок
   if (!res.ok) {
     const messages = parseApiErrors(data);

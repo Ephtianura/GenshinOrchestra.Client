@@ -32,7 +32,7 @@ namespace GenshinOrchestra.Client.App.Extensions
                 try
                 {
                     var req = JsonSerializer.Deserialize<BridgeRequest>(message, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    if (req == null || string.IsNullOrEmpty(req.Method)) return;
+                    if (req == null || string.IsNullOrWhiteSpace(req.Method)) return;
 
                     requestId = req.Id;
 

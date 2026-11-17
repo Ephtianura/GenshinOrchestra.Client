@@ -61,7 +61,7 @@ namespace GenshinOrchestra.Client.App.Services
 
                 foreach (string keyStr in ev.Keys)
                 {
-                    if (!string.IsNullOrEmpty(keyStr))
+                    if (!string.IsNullOrWhiteSpace(keyStr))
                     {
                         WindowsInput.SendKey(keyStr[0], ev.Action);
                     }

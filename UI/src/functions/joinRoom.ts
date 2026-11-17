@@ -13,8 +13,6 @@ export async function joinRoom(
   password?: string,
 ): Promise<RoomResponse> {
   try {
-    await signalRService.start();
-
     const response = await signalRService.invoke<RoomResponse>("JoinRoom", {
       inviteCode,
       password: password ?? null,
