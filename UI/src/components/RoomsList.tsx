@@ -6,12 +6,14 @@ import { RoomJoinModal } from './RoomJoinModal';
 import { useRooms } from '../functions/useRooms';
 
 interface RoomsListProps {
+    userId: string;
+    onOwnLeave: (roomId: string) => void;
     onRoomClick: (roomId: string) => void;
 }
 
-export const RoomsList = ({ onRoomClick }: RoomsListProps) => {
+export const RoomsList = ({ userId, onOwnLeave, onRoomClick }: RoomsListProps) => {
     const [showModal, setShowModal] = useState(false);
-    const { rooms, isLoading, reload } = useRooms();
+    const { rooms, isLoading, reload } = useRooms(userId, onOwnLeave);
 
     const initialRoomSelected = useRef(false);
     useEffect(() => {

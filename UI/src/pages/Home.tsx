@@ -25,7 +25,13 @@ export default function Home() {
                     <Group orientation="horizontal" className="h-full w-full overflow-hidden">
                         <Panel defaultSize="25%" minSize="15%" maxSize="40%" collapsible collapsedSize="0%" >
                             <RoomsList
-                                onRoomClick={(roomId) => setSelectedRoomId(roomId)}
+                                userId={user.id}
+                                onRoomClick={setSelectedRoomId}
+                                onOwnLeave={(roomId) => {
+                                    setSelectedRoomId(current =>
+                                        current === roomId ? null : current
+                                    );
+                                }}
                             />
                         </Panel>
 
