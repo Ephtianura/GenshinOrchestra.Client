@@ -1,41 +1,50 @@
 import { useState } from 'react';
 import { IoClose, IoEye, IoEyeOff } from 'react-icons/io5';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { send } from "../bridge/send";
 import { useAuth } from '../components/AuthContext';
 import { login as loginF } from '../functions/login';
+import { LoadingScreen } from '../components/LoadingScreen';
+import { toast } from 'react-toastify';
 
 export function Login() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [login, setLogin] = useState<string>('');
-    const [hwid, setHwid] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const navigate = useNavigate();
-    const location = useLocation();
     const { checkAuth } = useAuth();
-
-    const from = location.state?.from?.pathname ?? "/";
 
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        send.invoke<string>('GetHwid')
-            .then(setHwid)
-            .catch(console.error);
+        const currentHwid = await send.invoke<string>('GetHwid');
         try {
             await loginF({
                 login,
                 password,
-                hwid
+                hwid: currentHwid
             });
+
+            setIsRedirecting(true);
 
             await checkAuth();
 
-            navigate(from, { replace: true });
-        } catch (error) { }
+            navigate("/", { replace: true });
+        } catch (error: any) {
+            setIsRedirecting(false);
+
+            if (error.status == 400)
+                toast.warn("Неправильный логин или пароль 😭")
+
+            if (error.status >= 500)
+                toast.error("Сервер упал в бездну")
+        }
     };
 
+    if (isRedirecting) {
+        return <LoadingScreen />;
+    }
 
     return (
         <div className="w-full flex items-center justify-center text-[#333333] dark:text-[#e0e2ec] transition-colors duration-300 ">

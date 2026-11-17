@@ -4,39 +4,50 @@ import { useNavigate } from 'react-router-dom';
 import { send } from '../bridge/send';
 import { useAuth } from '../components/AuthContext';
 import { register } from '../functions/register';
-
+import { toast } from 'react-toastify';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 export function Register() {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [name, setName] = useState<string>('');
     const [login, setLogin] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [hwid, setHwid] = useState<string>('');
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const navigate = useNavigate();
     const { checkAuth } = useAuth();
-                
+
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-          send.invoke<string>('GetHwid')
-                .then(setHwid)
-                .catch(console.error);
-                
+        const currentHwid = await send.invoke<string>('GetHwid');
+
         try {
             await register({
                 name,
                 login,
                 password,
-                hwid
+                hwid: currentHwid
             });
 
-            await checkAuth();
-            navigate("/", { replace: true });
+            setIsRedirecting(true);
 
-        } catch (error) {
+            await checkAuth();
+
+            navigate("/", { replace: true });
+        } catch (error: any) {
+            setIsRedirecting(false);
+
+            if (error.status == 400)
+                toast.warn("Неправильный логин или пароль 😭")
+
+            if (error.status >= 500)
+                toast.error("Сервер упал в бездну")
         }
     };
+    if (isRedirecting) {
+        return <LoadingScreen />;
+    }
     return (
         <div className="w-full flex items-center justify-center text-[#333333] dark:text-[#e0e2ec] transition-colors duration-300 ">
             {/* Карточка модального окна */}
