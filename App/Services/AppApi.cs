@@ -6,13 +6,9 @@ namespace GenshinOrchestra.Client.App.Services
     public class AppApi()
     {
         public Task Ping() => Task.CompletedTask;
-
-        // Для тестирования
-        public string GetTest(int id) => $"Test aaaa + {id}";
-
+        public string GetTest(int id) => $"Test aaaa + {id}"; // Для тестирования
         public string GetHwid() => AuthService.GenerateHwid();
-
-
+        
         private CancellationTokenSource? _cts;
         private readonly object _lock = new();
 
@@ -61,13 +57,13 @@ namespace GenshinOrchestra.Client.App.Services
             }
         }
 
-        public async Task TestInput(CancellationToken ct = default)
+        public async Task TestInput()
         {
-            long nowUtc = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            long scheduledStartTime = nowUtc + 1000;
+            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            long scheduledStartTime = now + 1500;
 
             var track = TrackData.GetMockTrack(scheduledStartTime);
-            await PrecisionPlaybackEngine.PlayAsync(track, 0, ct);
+            await Start(track, 0);
         }
     }
 }

@@ -25,8 +25,6 @@ namespace GenshinOrchestra.Client.App.Services
             long targetStartLocalUtcMs = track.StartTimeUtcMs - serverDeltaMs;
 
             // Пробуждает поток за 10мс до старта и крутит его в цикле пока не достигним нужного времени.
-            // Вместо старого Task.Delay(), который мог пробудиться на позже.
-            // В теории, должно стартовать точнее и надёжнее на машинах.
             // Подробные комментарии ниже, принцип тот же.
             while (true)
             {
@@ -53,6 +51,17 @@ namespace GenshinOrchestra.Client.App.Services
                 ct.ThrowIfCancellationRequested(); // Отмена воспроизведения.
 
                 long targetTimeMs = ev.TimeOffsetMs; // Целевое время нажатия относительно начала. Например: 3250мс.
+
+                // Искусственный лаг, после комита уберу
+                //var currentElapsedMs = stopwatch.ElapsedMilliseconds;
+                //if (targetTimeMs == 1588)
+                //{
+                //    await Task.Delay(3000, ct);
+                //    currentElapsedMs = stopwatch.ElapsedMilliseconds;
+                //}
+
+                // Если нота отстает больше чем на 200 мс - пропускаем её
+                if (targetTimeMs < (stopwatch.ElapsedMilliseconds - 200)) continue;
 
                 // Ожидание нужного момента
                 while (stopwatch.ElapsedMilliseconds < targetTimeMs)                 // Если время ещё не наступило:
