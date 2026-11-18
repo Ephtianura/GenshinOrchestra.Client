@@ -28,8 +28,6 @@ export function usePing() {
         .then((res) => {
           if (!isMounted) return;
 
-  console.error(res);
-
           const rawPing = Math.round(performance.now() - startTime);
           const clampedPing = Math.max(0, Math.min(rawPing, 999));
 
@@ -44,7 +42,10 @@ export function usePing() {
           const oneWayDelay = smoothed / 2;
           const estimatedServerTime = res.serverTimeUtcMs + oneWayDelay;
 
-          setServerDeltaMs(estimatedServerTime - Date.now());
+          const rawDelta = estimatedServerTime - Date.now();
+          const roundedDelta = Math.round(rawDelta); 
+
+          setServerDeltaMs(roundedDelta);
         })
         .catch((err) => {
           if (isMounted) {

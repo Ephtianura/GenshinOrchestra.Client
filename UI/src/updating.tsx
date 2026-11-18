@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { receive } from './bridge/receive';
 import { formatBytes, formatTime } from './functions/formatBytesTime';
+import { useDesktopGuards } from './functions/useKeysBlock';
 
 type ProgressPayload = {
   percent: number;
@@ -13,6 +14,8 @@ type ProgressPayload = {
 };
 
 export default function Updating() {
+  useDesktopGuards();
+  
   const [state, setState] = useState({
     percent: 0,
     message: 'Подготовка к загрузке...',

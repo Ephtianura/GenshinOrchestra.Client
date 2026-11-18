@@ -13,8 +13,6 @@ export const useTrackReceiver = (
   isReadyRef.current = isReady;
 
   const {serverDeltaMs} = usePing();
-  console.warn(serverDeltaMs);
-
   const serverDeltaMsRef = useRef(serverDeltaMs);
 
   useEffect(() => {

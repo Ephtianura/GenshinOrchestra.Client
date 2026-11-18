@@ -5,8 +5,8 @@ import { useSignalRState } from '../functions/useSignalRState';
 import { CircleSpinner } from './CircleSpinner';
 
 export function PingIndicator() {
-    const {displayPing} = usePing();
-    
+    const { displayPing, serverDeltaMs } = usePing();
+
     const { isConnectionLost } = useSignalRState();
     const [isLongConnectionLost, setIsLongConnectionLost] = useState(false);
 
@@ -31,8 +31,15 @@ export function PingIndicator() {
                 ? 'var(--medium-ping)'
                 : 'var(--bad-ping)';
 
-   return (
-            <div className={`grid grid-cols-[auto_1fr] items-center w-22 
+    const deltaTooltip =
+        serverDeltaMs > 0
+            ? `Часы отстают на ${Math.round(serverDeltaMs)} мс.`
+            : serverDeltaMs < 0
+                ? `Часы спешат на ${Math.abs(Math.round(serverDeltaMs))} мс.`
+                : 'Часы синхронизированы';
+
+    return (
+        <div title={deltaTooltip} className={`grid grid-cols-[auto_1fr] items-center w-22 
             gap-1 py-0.5 px-2 bg-[#55555510] ring-2 ring-[#f0f0f029] rounded-full text-xs`}
             style={{ color: pingColor }}
         >
