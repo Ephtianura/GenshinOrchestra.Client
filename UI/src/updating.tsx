@@ -38,7 +38,6 @@ export default function Updating() {
           speedStr: `${formatBytes(data.bytesPerSecond ?? 0)}/s`,
           timeStr: formatTime(data.secondsRemaining ?? 0),
         });
-        console.log(state);
       } catch (err) {
         console.error('Ошибка обработки сообщения:', err);
       }

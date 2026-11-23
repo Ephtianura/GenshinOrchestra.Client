@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useDesktopGuards } from './functions/useKeysBlock';
 // import Titlebar from './components/Titlebar';
 import {
@@ -6,28 +5,15 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
-import { send } from './bridge/send';
+import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './components/AuthContext';
 import Home from "./pages/Home";
 import { Login } from './pages/Login';
 import { ProtectedRoute } from './pages/ProtectedRoute';
 import { Register } from './pages/Register';
-import { ToastContainer } from 'react-toastify';
 
 export default function Layout() {
   useDesktopGuards();
-
-  const [result, setResult] = useState<string | null>(null)
-
-  useEffect(() => {
-    send.invoke<string>('GetTest', {
-      id: 42,
-    })
-      .then(setResult)
-      .catch(console.error)
-  }, [])
-
-  console.log(result)
 
   return (
     <BrowserRouter>
@@ -35,8 +21,7 @@ export default function Layout() {
         {/* <Titlebar /> */}
 
         {/* Фоновое свечение*/}
-        {/* <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" /> */}
-        <div className='absolute left-0 top-0 noise-gradient w-screen h-screen z-0'></div>
+        <div className='noise-gradient absolute left-0 top-0 w-screen h-screen z-0'></div>
 
         <div className="flex gap-6 p-4 relative h-screen w-full">
           <AuthProvider>
