@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch } from "./api";
 import { signalRService } from "./signalrService";
 import type { RoomMemberResponse, RoomResponse } from "../types/types";
@@ -9,6 +9,9 @@ export function useRooms(
 ) {
     const [rooms, setRooms] = useState<RoomResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const onOwnLeaveRef = useRef(onOwnLeave);
+    onOwnLeaveRef.current = onOwnLeave;
 
     const loadRooms = useCallback(async () => {
         try {
@@ -28,9 +31,7 @@ export function useRooms(
             playersCount: number
         ) => {
             setRooms(prev => prev.map(room =>
-                room.id === roomId
-                    ? { ...room, playersCount }
-                    : room
+                room.id === roomId ? { ...room, playersCount } : room
             ));
         };
 
@@ -41,14 +42,12 @@ export function useRooms(
         ) => {
             if (leavingUserId === userId) {
                 setRooms(prev => prev.filter(room => room.id !== roomId));
-                onOwnLeave(roomId);
+                onOwnLeaveRef.current(roomId);
                 return;
             }
 
             setRooms(prev => prev.map(room =>
-                room.id === roomId
-                    ? { ...room, playersCount }
-                    : room
+                room.id === roomId ? { ...room, playersCount } : room
             ));
         };
 
@@ -61,11 +60,7 @@ export function useRooms(
             signalRService.off("UserJoined", handleUserJoined);
             signalRService.off("UserLeave", handleUserLeave);
         };
-    }, [loadRooms, userId, onOwnLeave]);
+    }, [loadRooms, userId]);
 
-    return {
-        rooms,
-        isLoading,
-        reload: loadRooms
-    };
+    return { rooms, isLoading, reload: loadRooms };
 }

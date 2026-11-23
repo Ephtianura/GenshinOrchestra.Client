@@ -3,10 +3,10 @@ import { useAuth } from "./AuthContext";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import { send } from "../bridge/send";
 import { apiFetch } from "../functions/api";
+import { toast } from "react-toastify";
 
 export default function Profile() {
     const { user } = useAuth();
-    // if (!user) return null;
     const initial = user?.name.charAt(0).toUpperCase();
 
     const [isEditingName, setIsEditingName] = useState(false);
@@ -16,13 +16,16 @@ export default function Profile() {
     const [uidValue, setUidValue] = useState(user?.uid?.toString() || "");
 
     const handleSaveName = async () => {
-        await apiFetch("client/users/me", {
-            method: "PATCH", 
-            body: JSON.stringify({Name: nameValue})
-        });
-        console.log("Сохранено имя:", nameValue);
-
-        setIsEditingName(false);
+        try {
+            await apiFetch("client/users/me", {
+                method: "PATCH",
+                body: JSON.stringify({ Name: nameValue })
+            });
+            setIsEditingName(false);
+        }
+        catch {
+            toast.error("Не получилось ¯\\_(ツ)_/¯")
+        }
     };
     const handleCancelName = () => {
         setNameValue(user?.name || "");
@@ -30,12 +33,16 @@ export default function Profile() {
     };
 
     const handleSaveUid = async () => {
-        await apiFetch("client/users/me", {
-            method: "PATCH", 
-            body: JSON.stringify({Uid: uidValue})
-        });
-        console.log("Сохранен UID:", uidValue);
-        setIsEditingUid(false);
+        try {
+            await apiFetch("client/users/me", {
+                method: "PATCH",
+                body: JSON.stringify({ Uid: uidValue })
+            });
+            setIsEditingUid(false);
+        }
+        catch {
+            toast.error("Кажется неверный UID  ¯\\_(ツ)_/¯")
+        }
     };
     const handleCancelUid = () => {
         setUidValue(user?.uid?.toString() || "");
@@ -158,7 +165,6 @@ export default function Profile() {
                 className="text-xs flex flex-col text-[#cca043] hover:text-[#b58b32] dark:text-[#e5bf6c] dark:hover:text-[#f3d386] transition-colors cursor-pointer shrink-0 truncate ml-2"
                 onClick={() => handleTestInput()}
             >
-
                 <span>Тест ввода</span>
                 <span className="text-gray-600 text-[11px]">(зайди в геншин после нажатия!!)</span>
             </button>

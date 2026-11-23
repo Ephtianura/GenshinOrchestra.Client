@@ -31,7 +31,6 @@ class SignalRService {
 
     this.connection.onreconnected(async () => {
       console.log("Соединение с сервером восстановлено");
-      await this.connection.invoke("RejoinRooms");
       this.setConnectionLost(false);
     });
 
@@ -89,7 +88,6 @@ class SignalRService {
 
     try {
       await this.connection.start();
-      await this.connection.invoke("RejoinRooms");
       this.isStarted = true;
       this.setConnectionLost(false);
     } catch (err) {

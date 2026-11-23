@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { apiFetch } from "./api";
 import { signalRService } from "./signalrService";
-import { MemberStatus, type RoomMemberResponse } from "../types/types";
+import {
+  MemberStatus,
+  type RoomMemberResponse,
+  type UserUpdateInfoEvent,
+} from "../types/types";
 
 export function usePlayers(roomId: string | null) {
   const [users, setUsers] = useState<RoomMemberResponse[]>([]);
@@ -59,6 +63,27 @@ export function usePlayers(roomId: string | null) {
         ),
       );
     };
+    const handleUserUpdated = (data: UserUpdateInfoEvent) => {
+      changeVersion.current++;
+
+      setUsers((prev) =>
+        prev.map((user) => {
+          if (user.userId !== data.userId) return user;
+
+          return {
+            ...user,
+            ...(data.nameChanged &&
+              data.name !== null && {
+                name: data.name,
+              }),
+            ...(data.enkaProfileChanged && {
+              inGameNick: data.nickname,
+              avatarUrl: data.iconUrl,
+            }),
+          };
+        }),
+      );
+    };
 
     const handleUserJoined = (
       member: RoomMemberResponse,
@@ -74,7 +99,6 @@ export function usePlayers(roomId: string | null) {
         return [...prev, member];
       });
     };
-
     const handleUserLeave = (userId: string, eventRoomId: string) => {
       if (eventRoomId !== roomId) return;
 
@@ -83,16 +107,41 @@ export function usePlayers(roomId: string | null) {
       setUsers((prev) => prev.filter((user) => user.userId !== userId));
     };
 
+    const handleUserOnline = (userId: string, status: MemberStatus) => {
+      changeVersion.current++;
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.userId === userId ? { ...user, status } : user,
+        ),
+      );
+    };
+    const handleUserOffline = (userId: string) => {
+      changeVersion.current++;
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.userId === userId
+            ? { ...user, status: MemberStatus.Offline }
+            : user,
+        ),
+      );
+    };
+    signalRService.on("UserStatus", handleUserStatus);
+    signalRService.on("UserUpdated", handleUserUpdated);
     signalRService.on("UserJoined", handleUserJoined);
     signalRService.on("UserLeave", handleUserLeave);
-    signalRService.on("UserStatus", handleUserStatus);
-
+    signalRService.on("UserOnline", handleUserOnline);
+    signalRService.on("UserOffline", handleUserOffline);
     loadUsers();
 
     return () => {
+      signalRService.off("UserStatus", handleUserStatus);
+      signalRService.off("UserUpdated", handleUserUpdated);
       signalRService.off("UserJoined", handleUserJoined);
       signalRService.off("UserLeave", handleUserLeave);
-      signalRService.off("UserStatus", handleUserStatus);
+      signalRService.off("UserOnline", handleUserOnline);
+      signalRService.off("UserOffline", handleUserOffline);
     };
   }, [roomId, loadUsers]);
 

@@ -21,9 +21,6 @@ export const RoomJoinModal = ({ isOpen, onClose, onJoin }: RoomJoinModalProps) =
 
         try {
             const roomData = await joinRoom(inviteCode, password || undefined);
-
-            console.log("Успешный вход в комнату:", roomData);
-
             onJoin(roomData)
         } catch (err: any) {
             console.error("Ошибка при входе:", err);

@@ -52,14 +52,6 @@ namespace GenshinOrchestra.Client.App.Services
 
                 long targetTimeMs = ev.TimeOffsetMs; // Целевое время нажатия относительно начала. Например: 3250мс.
 
-                // Искусственный лаг, после комита уберу
-                //var currentElapsedMs = stopwatch.ElapsedMilliseconds;
-                //if (targetTimeMs == 1588)
-                //{
-                //    await Task.Delay(3000, ct);
-                //    currentElapsedMs = stopwatch.ElapsedMilliseconds;
-                //}
-
                 // Если нота отстает больше чем на 200 мс - пропускаем её
                 if (targetTimeMs < (stopwatch.ElapsedMilliseconds - 200)) continue;
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
 import { MainCard } from "../components/MainCard";
 import { PingIndicator } from "../components/PingIndicator";
@@ -8,16 +8,34 @@ import { RoomMembersList } from "../components/RoomMembersList";
 import { RoomsList } from "../components/RoomsList";
 import { UrInstrument } from "../components/UrInstrument";
 import { useAuth } from "../components/AuthContext";
+import { TrackCountdown } from "../components/TrackCountdown";
+import { useStatus } from "../functions/useStatus";
+import { useTrackReceiver } from "../functions/useTrackReceiver";
+import { usePing } from "../functions/usePing";
 
 export default function Home() {
+    const { displayPing, serverDeltaMsRef } = usePing();
+
     const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+
     const { user } = useAuth();
     if (!user) return;
+
+    const { isReady, instrument, toggleReady } = useStatus(selectedRoomId, user.id ?? "");
+
+    const startTime = useTrackReceiver(isReady, selectedRoomId, serverDeltaMsRef);
+
+    const handleOwnLeave = useCallback((roomId: string) => {
+        setSelectedRoomId(current => current === roomId ? null : current);
+    }, []);
 
     return (
         <div className='flex flex-col w-full h-full relative'>
             <div className="absolute right-2 top-2 z-10">
-                <PingIndicator />
+                <PingIndicator
+                    displayPing={displayPing}
+                    serverDeltaMsRef={serverDeltaMsRef}
+                />
             </div>
             <Group orientation="vertical" className="h-full w-full overflow-hidden">
 
@@ -27,11 +45,7 @@ export default function Home() {
                             <RoomsList
                                 userId={user.id}
                                 onRoomClick={setSelectedRoomId}
-                                onOwnLeave={(roomId) => {
-                                    setSelectedRoomId(current =>
-                                        current === roomId ? null : current
-                                    );
-                                }}
+                                onOwnLeave={handleOwnLeave}
                             />
                         </Panel>
 
@@ -42,7 +56,6 @@ export default function Home() {
                         {/* Главная секция */}
                         <Panel defaultSize="50%" minSize="45%" maxSize="100%" className="h-full">
                             {selectedRoomId && (
-
                                 <MainCard className="bg-[#121925]/80  justify-between p-8 overflow-y-auto overflow-x-hidden">
 
                                     {/* Декоративные орнаменты по углам */}
@@ -51,11 +64,23 @@ export default function Home() {
                                     <div className="corners-ornament bottom-4 left-4 border-b-2 border-l-2" />
                                     <div className="corners-ornament bottom-4 right-4 border-b-2 border-r-2" />
 
+                                    <div className="absolute top-4 right-4">
+                                        <TrackCountdown
+                                            startTime={startTime}
+                                            serverDeltaMs={serverDeltaMsRef.current}
+                                        />
+                                    </div>
+
                                     {/* Центральный блок с инструментом */}
-                                    <UrInstrument />
+                                    <UrInstrument initInstrument={instrument} />
 
                                     {/* Готов */}
-                                    <ReadyButton roomId={selectedRoomId} userId={user.id} />
+                                    <ReadyButton
+                                        roomId={selectedRoomId}
+                                        userId={user.id}
+                                        isReady={isReady}
+                                        toggleReady={toggleReady}
+                                    />
 
                                 </MainCard>
                             )}
@@ -75,7 +100,6 @@ export default function Home() {
                     </Group>
                 </Panel>
 
-
                 <Panel defaultSize="9%" minSize="9%" maxSize="9%" collapsible collapsedSize="0%" className="overflow-hidden!" >
                     <Profile />
                 </Panel>
@@ -84,61 +108,3 @@ export default function Home() {
         </div >
     );
 }
-
-/*const me: string = "22222222-2222-2222-2222-222222222222"
-
-const member1: RoomMemberResponse = {
-    userId: '11111111-1111-1111-1111-111111111111',
-    name: 'Ephtianura',
-    inGameNick: 'Константин',
-    role: RoomRole.Musician,
-    status: MemberStatus.NotReady,
-    avatarUrl: null
-};
-const member2: RoomMemberResponse = {
-    userId: '22222222-2222-2222-2222-222222222222',
-    name: 'Vortex',
-    inGameNick: 'Алексей',
-    role: RoomRole.Musician,
-    status: MemberStatus.Ready,
-    avatarUrl: null
-};
-const member3: RoomMemberResponse = {
-    userId: '33333333-3333-3333-3333-333333333333',
-    name: 'Shadow',
-    inGameNick: 'Максим',
-    role: RoomRole.Musician,
-    status: MemberStatus.Offline,
-    avatarUrl: null
-};
-const members = [member1, member2, member3, member2, member3]
-const rooms: RoomResponse[] = [
-    {
-        id: "1",
-        name: "Концерт Monody (Liyue Theme)",
-        isActive: true,
-        maxPlayers: 4,
-        playersCount: 2,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "2",
-        name: "Фамильные хроники Фонтейна",
-        isActive: true,
-        maxPlayers: 4,
-        playersCount: 4,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "3",
-        name: "Ночная репетиция Инадзумы",
-        isActive: false,
-        maxPlayers: 2,
-        playersCount: 0,
-        createdAt: new Date().toISOString(),
-    },
-];
-*/
-/* <Separator className="relative h-4 mx-4 flex items-center justify-center transition-colors cursor-row-resize group">
-                    <div className="absolute w-full h-px group-hover:bg-[#978ed3]/20 group-active:bg-[#828aae]/50 transition-colors duration-300" />
- </Separator> */
