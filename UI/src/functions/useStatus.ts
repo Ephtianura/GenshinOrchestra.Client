@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { signalRService } from "./signalrService";
-import { MemberStatus } from "../types/types";
+import { MemberStatus, type ClientStatusResponse } from "../types/types";
 import { checkStatus } from "./checkStatus";
 import { apiFetch } from "./api";
 
-export function useReady(roomId: string | null, currentUserId: string) {
-  const [statuses, setStatuses] = useState<Record<string, MemberStatus>>({});
+export function useStatus(roomId: string | null, currentUserId: string) {
+  const [statuses, setStatuses] = useState<
+    Record<string, ClientStatusResponse>
+  >({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const status = roomId
-    ? (statuses[roomId] ?? MemberStatus.NotReady)
-    : MemberStatus.NotReady;
+  const clientStatus = roomId ? statuses[roomId] : undefined;
+  const status = clientStatus?.status ?? MemberStatus.NotReady;
+  const instrument = clientStatus?.instrument ?? null;
 
   // Загружаем начальный статус при смене комнаты
   useEffect(() => {
@@ -52,14 +54,17 @@ export function useReady(roomId: string | null, currentUserId: string) {
 
       setStatuses((prev) => ({
         ...prev,
-        [eventRoomId]: newStatus,
+        [eventRoomId]: {
+          ...prev[eventRoomId],
+          status: newStatus,
+        },
       }));
     };
 
     signalRService.on("UserStatus", handleUserStatus);
 
     return () => {
-      signalRService.off("UserStatus");
+      signalRService.off("UserStatus", handleUserStatus);
     };
   }, [currentUserId]);
 
@@ -75,13 +80,16 @@ export function useReady(roomId: string | null, currentUserId: string) {
 
     try {
       await apiFetch(`client/rooms/${roomId}/status`, {
-        method: "POST",
+        method: "PATCH",
         body: JSON.stringify(nextStatus),
       });
 
       setStatuses((prev) => ({
         ...prev,
-        [roomId]: nextStatus,
+        [roomId]: {
+          ...prev[roomId],
+          status: nextStatus,
+        },
       }));
     } catch (error) {
       console.error("Не удалось изменить статус:", error);
@@ -92,6 +100,7 @@ export function useReady(roomId: string | null, currentUserId: string) {
 
   return {
     status,
+    instrument,
     isReady: status === MemberStatus.Ready,
     isLoading,
     toggleReady,

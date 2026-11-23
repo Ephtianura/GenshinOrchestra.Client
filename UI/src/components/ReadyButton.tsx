@@ -1,18 +1,15 @@
-import { useReady } from '../functions/useReady';
-import { useTrackReceiver } from '../functions/useTrackReceiver';
 
 interface ReadyButtonProps {
     roomId: string | null
     userId: string | null
+    isReady: boolean
+    toggleReady(): void
 }
 
-export const ReadyButton = ({ roomId, userId }: ReadyButtonProps) => {
-    const { isReady, toggleReady } = useReady(roomId, userId ?? "");
-
-    useTrackReceiver(isReady, roomId);
+export const ReadyButton = ({ roomId, userId, isReady, toggleReady }: ReadyButtonProps) => {
 
     if (!roomId || !userId) return null;
-    
+
     return (
         <div className='flex flex-col gap-1'>
             <div className="flex px-4 text-xs text-center">

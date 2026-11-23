@@ -3,6 +3,7 @@ import { useAuth } from "./AuthContext";
 import { IoCheckmark, IoClose } from "react-icons/io5";
 import { send } from "../bridge/send";
 import { apiFetch } from "../functions/api";
+import { toast } from "react-toastify";
 
 export default function Profile() {
     const { user } = useAuth();
@@ -15,13 +16,16 @@ export default function Profile() {
     const [uidValue, setUidValue] = useState(user?.uid?.toString() || "");
 
     const handleSaveName = async () => {
-        await apiFetch("client/users/me", {
-            method: "PATCH", 
-            body: JSON.stringify({Name: nameValue})
-        });
-        console.log("Сохранено имя:", nameValue);
-
-        setIsEditingName(false);
+        try {
+            await apiFetch("client/users/me", {
+                method: "PATCH",
+                body: JSON.stringify({ Name: nameValue })
+            });
+            setIsEditingName(false);
+        }
+        catch {
+            toast.error("Не получилось ¯\\_(ツ)_/¯")
+        }
     };
     const handleCancelName = () => {
         setNameValue(user?.name || "");
@@ -29,12 +33,16 @@ export default function Profile() {
     };
 
     const handleSaveUid = async () => {
-        await apiFetch("client/users/me", {
-            method: "PATCH", 
-            body: JSON.stringify({Uid: uidValue})
-        });
-        console.log("Сохранен UID:", uidValue);
-        setIsEditingUid(false);
+        try {
+            await apiFetch("client/users/me", {
+                method: "PATCH",
+                body: JSON.stringify({ Uid: uidValue })
+            });
+            setIsEditingUid(false);
+        }
+        catch {
+            toast.error("Кажется неверный UID  ¯\\_(ツ)_/¯")
+        }
     };
     const handleCancelUid = () => {
         setUidValue(user?.uid?.toString() || "");

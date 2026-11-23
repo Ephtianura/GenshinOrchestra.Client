@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { HiChartBar } from 'react-icons/hi';
-import { usePing } from '../functions/usePing';
 import { useSignalRState } from '../functions/useSignalRState';
 import { CircleSpinner } from './CircleSpinner';
+interface PingIndicatorProps {
+    displayPing: number;
+   serverDeltaMsRef: { current: number };
+}
 
-export function PingIndicator() {
-    const { displayPing, serverDeltaMs } = usePing();
+export function PingIndicator({ displayPing, serverDeltaMsRef }: PingIndicatorProps) {
 
     const { isConnectionLost } = useSignalRState();
     const [isLongConnectionLost, setIsLongConnectionLost] = useState(false);
@@ -32,10 +34,10 @@ export function PingIndicator() {
                 : 'var(--bad-ping)';
 
     const deltaTooltip =
-        serverDeltaMs > 0
-            ? `Часы отстают на ${Math.round(serverDeltaMs)} мс.`
-            : serverDeltaMs < 0
-                ? `Часы спешат на ${Math.abs(Math.round(serverDeltaMs))} мс.`
+        serverDeltaMsRef.current > 0
+            ? `Часы отстают на ${Math.round(serverDeltaMsRef.current)} мс.`
+            : serverDeltaMsRef.current < 0
+                ? `Часы спешат на ${Math.abs(Math.round(serverDeltaMsRef.current))} мс.`
                 : 'Часы синхронизированы';
 
     return (

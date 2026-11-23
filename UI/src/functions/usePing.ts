@@ -9,8 +9,10 @@ interface PingResponse {
 // считает время запроса, сглаживает и округляет значение до целого в промежутке 0-999.
 // а также считает разницу во времени между сервером и клиентом
 export function usePing() {
+  const displayPingRef = useRef(0);
+  const serverDeltaMsRef = useRef(0);
+
   const [displayPing, setDisplayPing] = useState(0);
-  const [serverDeltaMs, setServerDeltaMs] = useState(0);
 
   const previousPingRef = useRef(0);
 
@@ -37,19 +39,20 @@ export function usePing() {
               : Math.round(clampedPing * 0.4 + previousPingRef.current * 0.6);
 
           previousPingRef.current = smoothed;
+
+          displayPingRef.current = smoothed;
           setDisplayPing(smoothed);
 
           const oneWayDelay = smoothed / 2;
           const estimatedServerTime = res.serverTimeUtcMs + oneWayDelay;
 
-          const rawDelta = estimatedServerTime - Date.now();
-          const roundedDelta = Math.round(rawDelta); 
-
-          setServerDeltaMs(roundedDelta);
+          serverDeltaMsRef.current = Math.round(
+            estimatedServerTime - Date.now(),
+          );
         })
         .catch((err) => {
           if (isMounted) {
-            console.error("Ping Invoke Error: ", err);
+            console.error("Ping Invoke Error:", err);
           }
         });
     };
@@ -63,14 +66,12 @@ export function usePing() {
 
     return () => {
       isMounted = false;
-      if (intervalId !== null) {
-        clearInterval(intervalId);
-      }
+      if (intervalId !== null) clearInterval(intervalId);
     };
   }, []);
 
   return {
     displayPing,
-    serverDeltaMs,
+    serverDeltaMsRef,
   };
 }

@@ -1,3 +1,5 @@
+import type { GenshinInstruments } from "./GenshinInstruments";
+
 export interface UserResponse {
     id: string;
     name: string;
@@ -33,4 +35,16 @@ export enum RoomRole {
     Musician = "Musician"
 }
 
+export interface ClientStatusResponse {
+   status: MemberStatus, 
+   instrument: GenshinInstruments 
+}
 
+export interface UserUpdateInfoEvent {
+  userId: string;
+  nameChanged: boolean;
+  name: string | null;
+  enkaProfileChanged: boolean;
+  nickname: string | null;
+  iconUrl: string | null;
+}
